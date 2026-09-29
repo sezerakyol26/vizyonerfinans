@@ -1,0 +1,488 @@
+/**
+ * Vizyoner Finans Mobil - Specialized Mobile Design System
+ * iOS Human Interface & Android Material 3 Hybrid Fluid Styling
+ * Glassmorphic, Touch-Optimized, Safe-Area Compliant
+ */
+
+:root {
+  --mobile-nav-height: 64px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --mobile-header-height: 58px;
+}
+
+/* 1. Global Touch Ergonomics */
+* {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background-color: var(--bg-dark, #070a12);
+  color: var(--text-primary, #f8fafc);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
+  padding-bottom: calc(var(--mobile-nav-height) + var(--safe-bottom) + 24px);
+}
+
+/* Allow text selection inside inputs and data fields */
+input, textarea, select, .selectable-text {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* 2. Top Mobile Header */
+.mobile-top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(11, 15, 25, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: var(--safe-top);
+  padding-left: 16px;
+  padding-right: 16px;
+  height: calc(var(--mobile-header-height) + var(--safe-top));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mobile-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mobile-logo-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+}
+
+.mobile-brand-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #fff 40%, rgba(255,255,255,0.7));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.1;
+}
+
+.mobile-brand-tag {
+  font-size: 0.65rem;
+  color: var(--accent-cyan, #06b6d4);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mobile-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-avatar-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--accent-primary, #8b5cf6);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+}
+
+/* 3. Horizontal Ticker for Mobile */
+.mobile-ticker-bar {
+  display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
+  gap: 10px;
+  padding: 8px 14px;
+  background: rgba(15, 23, 42, 0.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  scrollbar-width: none;
+}
+.mobile-ticker-bar::-webkit-scrollbar {
+  display: none;
+}
+.mobile-ticker-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.mobile-ticker-chip .up { color: #10b981; }
+.mobile-ticker-chip .down { color: #f43f5e; }
+
+/* 4. Bottom Navigation Bar */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--mobile-nav-height) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  background: rgba(11, 15, 25, 0.94);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 1050;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex: 1;
+  height: 100%;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  font-size: 0.68rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.bottom-nav-item i {
+  width: 22px;
+  height: 22px;
+  transition: transform 0.2s;
+}
+
+.bottom-nav-item.active {
+  color: var(--accent-cyan, #06b6d4);
+}
+
+.bottom-nav-item.active i {
+  transform: translateY(-2px);
+  filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.6));
+}
+
+/* FAB Quick Add Button in Bottom Nav */
+.bottom-nav-fab-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 100%;
+}
+
+.bottom-nav-fab {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+  border: 3px solid #070a12;
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  transform: translateY(-14px);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.bottom-nav-fab:active {
+  transform: translateY(-11px) scale(0.95);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+}
+
+.bottom-nav-fab i {
+  width: 26px;
+  height: 26px;
+}
+
+/* 5. Mobile Main View Containers */
+.mobile-view-container {
+  padding: 14px 14px 20px 14px;
+  display: none;
+  animation: fadeIn 0.22s ease-out;
+}
+
+.mobile-view-container.active-view {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 6. Metric Cards & KPI Grid on Mobile */
+.mobile-kpi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.mobile-kpi-card {
+  background: rgba(18, 24, 38, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.mobile-kpi-card.full-width {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(6, 182, 212, 0.08));
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  padding: 16px;
+}
+
+.mobile-kpi-title {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mobile-kpi-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff;
+  margin-top: 6px;
+}
+
+.mobile-kpi-sub {
+  font-size: 0.68rem;
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+/* 7. Mobile Action Drawer / App Launcher (More Menu) */
+.mobile-drawer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.drawer-app-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 16px 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.drawer-app-item:active {
+  background: rgba(255, 255, 255, 0.08);
+  transform: scale(0.97);
+}
+
+.drawer-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.drawer-app-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.2;
+}
+
+/* 8. Bottom Sheet for Quick Add */
+.bottom-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.bottom-sheet-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.bottom-sheet-content {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #0f172a;
+  border-radius: 24px 24px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 18px 18px calc(var(--safe-bottom) + 18px) 18px;
+  z-index: 2001;
+  transform: translateY(100%);
+  transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.bottom-sheet-overlay.active .bottom-sheet-content {
+  transform: translateY(0);
+}
+
+.bottom-sheet-handle {
+  width: 40px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 2px;
+  margin: 0 auto 16px auto;
+}
+
+/* 9. Mobile Card List for Transactions */
+.mobile-tx-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.mobile-tx-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-tx-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.mobile-tx-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.mobile-tx-sub {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 2px;
+}
+
+.mobile-tx-amount {
+  font-size: 0.95rem;
+  font-weight: 800;
+  text-align: right;
+}
+
+.mobile-tx-amount.expense { color: #f43f5e; }
+.mobile-tx-amount.income { color: #10b981; }
+.mobile-tx-amount.investment { color: #06b6d4; }
+
+/* 10. Horizontal Filter Chips */
+.mobile-chips-scroll {
+  display: flex;
+  overflow-x: auto;
+  gap: 8px;
+  padding: 4px 0 10px 0;
+  scrollbar-width: none;
+}
+.mobile-chips-scroll::-webkit-scrollbar { display: none; }
+
+.mobile-chip {
+  padding: 6px 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.mobile-chip.active {
+  background: var(--accent-primary, #8b5cf6);
+  color: #fff;
+  border-color: var(--accent-primary, #8b5cf6);
+}
+
+/* 11. Modal Responsive adjustments for Mobile */
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 0 !important;
+    align-items: flex-end !important;
+  }
+  .modal-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+    max-height: 90vh !important;
+    margin: 0 !important;
+  }
+  .sidebar {
+    display: none !important;
+  }
+  .main-wrapper {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding-bottom: 20px !important;
+  }
+  .top-header {
+    display: none !important;
+  }
+}
