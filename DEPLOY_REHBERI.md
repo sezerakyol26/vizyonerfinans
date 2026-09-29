@@ -1,86 +1,57 @@
-# 📱 Vizyoner Finans Mobil - GitHub Pages Yayınlama & Kurulum Rehberi
+# 📱 Vizyoner Finans Mobil - Dikey Mobil Format & Masaüstü Canlı Senkronizasyon Rehberi
 
-Bu rehber, **VizyonerFinansMobile** uygulamasını GitHub üzerinde tamamen ücretsiz barındırıp (GitHub Pages), hem **iOS (iPhone/iPad)** hem de **Android** cihazlarınıza nasıl gerçek bir yerel uygulama gibi yükleyeceğinizi adım adım açıklar.
-
----
-
-## 🚀 1. Adım: GitHub Üzerinde Sunucu Oluşturma (GitHub Pages)
-
-GitHub Pages tamamen ücretsizdir, SSL (https://) sertifikası içerir ve PWA (Progressive Web App) özelliklerinin telefonda çalışması için gereken güvenli bağlantıyı sağlar.
-
-### A. Yeni GitHub Deposu (Repository) Oluşturun
-1. [GitHub](https://github.com/) hesabınıza giriş yapın.
-2. Sağ üstteki **`+`** ikonuna tıklayıp **"New repository"** seçeneğini seçin.
-3. Repository name alanına örneğin: `vizyoner-mobil` veya `VizyonerFinansMobile` yazın.
-4. Görünürlüğü **Public** (Herkese Açık) olarak belirleyin (Ücretsiz GitHub Pages için gereklidir).
-5. **"Create repository"** butonuna tıklayın.
-
-### B. Mobil Dosyaları GitHub'a Yükleyin
-Klasörünüzdeki tüm dosyaları GitHub'a 2 yöntemden biriyle yükleyebilirsiniz:
-
-#### 1. Yöntem: Doğrudan Web Arayüzünden (Kolay)
-1. Açılan repo sayfasında **"uploading an existing file"** linkine tıklayın.
-2. `c:\Users\PC\Desktop\VizyonerFinans\VizyonerFinansMobile` klasöründeki **tüm dosya ve alt klasörleri** (`index.html`, `manifest.json`, `sw.js`, `mobile-adapter.js`, `mobile-ui.js`, `mobile.css`, `app.js`, `styles.css`, `synced_data.js`, `vendor/`, `icons/`) sürükleyip bırakın.
-3. Alttaki **"Commit changes"** butonuna tıklayın.
-
-#### 2. Yöntem: Git Komut Satırı ile (Hızlı)
-`VizyonerFinansMobile` klasörü içerisinde bir terminal açıp şu komutları çalıştırın:
-```bash
-git init
-git add .
-git commit -m "Vizyoner Finans Mobil v1.0.0"
-git branch -M main
-git remote add origin https://github.com/KULLANICI_ADINIZ/vizyoner-mobil.git
-git push -u origin main
-```
-
-### C. GitHub Pages'i Aktif Edin
-1. GitHub reponuzun üst menüsündeki **"Settings"** (Ayarlar) sekmesine gidin.
-2. Sol menüden **"Pages"** sekmesine tıklayın.
-3. **Build and deployment** başlığı altında:
-   - **Source:** `Deploy from a branch` seçin.
-   - **Branch:** `main` (veya `master`) ve `/ (root)` seçin.
-4. **"Save"** butonuna tıklayın.
-5. Yaklaşık 1-2 dakika içinde sayfanın üstünde yayın bağlantınız belirecektir:  
-   👉 `https://kullaniciadiniz.github.io/vizyoner-mobil/`
+Bu rehber, **VizyonerFinansMobile** uygulamasının dikey mobil format özelliklerini ve masaüstü `VizyonerFinans/data/` klasöründeki tüm kullanıcı datalarıyla nasıl çift yönlü canlı senkron çalıştığını açıklar.
 
 ---
 
-## 📲 2. Adım: Telefona Gerçek Uygulama Olarak Yükleme
+## 🌟 1. Dikey Mobil Format Çerçeveleme Özellikleri
 
-### 🍎 iOS (iPhone & iPad) Kurulumu:
-1. iPhone'unuzda **Safari** tarayıcısını açın (Not: iOS'ta PWA kurulumu için Safari şarttır).
-2. GitHub Pages adresinize gidin: `https://kullaniciadiniz.github.io/vizyoner-mobil/`
-3. Safari'nin alt ortasındaki **Paylaş (Share)** simgesine (kare içinden yukarı çıkan ok) dokunun.
-4. Açılan menüyü aşağı kaydırıp **"Ana Ekrana Ekle" (Add to Home Screen)** seçeneğini seçin.
-5. Sağ üstteki **"Ekle"** butonuna dokunun.
-6. Artık ana ekranınızda **Vizyoner Finans** uygulama ikonu belirecektir. Tıkladığınızda tarayıcı sekmeleri ve adres çubuğu olmadan tam ekran yerel bir iOS uygulaması gibi açılacaktır.
-
-### 🤖 Android (Samsung, Xiaomi vb.) Kurulumu:
-1. Telefonunuzda **Google Chrome** tarayıcısını açın.
-2. GitHub Pages adresinize gidin: `https://kullaniciadiniz.github.io/vizyoner-mobil/`
-3. Ekranın altında otomatik olarak beliren **"Ana Ekrana Ekle"** veya **"Vizyoner Finans Uygulamasını Yükle"** bildirimine dokunun.
-4. Eğer bildirim çıkmazsa, sağ üstteki **üç nokta (⋮)** simgesine dokunun ve **"Uygulamayı Yükle"** veya **"Ana Ekrana Ekle"** seçeneğini seçin.
-5. Uygulama telefonunuzun uygulama çekmecesine ve ana ekranına yerleşecektir.
+- **📱 %100 Dikey Ekran Uyumu (Portrait-First):**
+  - Telefon dik tutulduğunda sağa/sola taşma (yatay kaydırma) sıfıra indirilmiştir (`max-width: 100vw; overflow-x: hidden`).
+  - Her sekmenin başında şık bir **Mobil Sekme Başlık Çerçevesi (Banner)** yer alır (Sekme Adı, Açıklaması, İkonu ve Hızlı İşlem Butonu).
+  - Tüm KPI kartları mobilde dikey formata uygun 2 sütunlu veya tek sütunlu cam efektli çerçeveler halindedir.
+  - Tablolar (İşlemler, Portföy Hisseleri, Borç Taksitleri) dikey ekranda bozulmadan parmakla sağa-sola kaydırılabilir esnek çerçeveye (`.table-responsive`) alınmıştır.
+- **🧭 Sabit Alt Navigasyon Dock (Bottom Dock):**
+  - Ekranın altında sabit duran dock: **Özet**, **İşlemler**, **Ortada Hızlı Ekle (+)**, **Portföy** ve **Menü**.
+  - Dokunduğunuz sekme anında dikey çerçevesiyle ekrana gelir ve sayfanın en tepesine yumuşakça kayar.
+- **⚡ Ortada "+" FAB Hızlı İşlem Paneli:**
+  - Tek dokunuşla ekranın altından yukarı kayan **Bottom Sheet** menüsü ile Gelir, Gider, Yatırım veya Borç kaydetme.
 
 ---
 
-## ⚡ 3. Adım: Çevrimdışı (Offline) Özellikler & Veri Güvenliği
+## 🔄 2. Masaüstü `data/` Kullanıcı Verileri ile Canlı Senkronizasyon
 
-1. **İnternetsiz Çalışma:**
-   - Uygulama `sw.js` (Service Worker) teknolojisiyle tüm arayüzü ve verileri cihazınıza önbellekler.
-   - Uçak modunda veya çekmeyen ortamlarda bile anında açılır; işlemlerinizi girebilir, grafiklerinizi inceleyebilirsiniz.
-2. **Kişisel Veri Gizliliği (Local-First):**
-   - Verileriniz telefonunuzun yerel güvenli depolama alanında (`localStorage`) saklanır. Hiçbir harici bulut sunucusuna gönderilmez.
-3. **Masaüstü ile Veri Eşitleme:**
-   - **Yedek İndir (JSON):** Menü sekmesinden "Yedek İndir" butonuna basarak verinizi JSON dosyası olarak alabilirsiniz.
-   - **Yedek Yükle (JSON):** Masaüstündeki veya başka bir cihazdaki yedeğinizi Ayarlar sekmesinden tek tıkla yükleyebilirsiniz.
-   - **Masaüstü Yerel IP Senkronizasyonu:** Eğer telefonunuz ve bilgisayarınız aynı ev/ofis Wi-Fi ağına bağlıysa, Ayarlar sekmesinde bilgisayarınızın yerel IP adresini (örn: `http://192.168.1.35:5173`) girerek canlı masaüstü sunucusuna bağlanabilirsiniz.
+Mobil uygulama, masaüstü `VizyonerFinans` klasöründeki kullanıcı veritabanı ile **2 farklı yöntemle tam senkron** çalışır:
+
+### Yöntem A: Aynı Wi-Fi / Yerel Ağ Üzerinden (Sıfır Kurulum - En Kolay)
+1. Bilgisayarınızda `VizyonerFinans.exe` veya `baslat.bat` açık olsun.
+2. Bilgisayarınızın yerel IP adresini öğrenin (Komut satırına `ipconfig` yazarak, örn: `192.168.1.35`).
+3. Telefonunuzun tarayıcısından (veya Safari/Chrome PWA'dan) şu adresi açın:  
+   👉 `http://192.168.1.35:5173/VizyonerFinansMobile/`
+4. **Sonuç:** Üst barda **"🟢 Masaüstü Senkron"** rozeti yanar.
+   - Mobilde eklediğiniz bir gelir/gider, **ANINDA** bilgisayarınızdaki `data/admin_data.json` dosyasına yazılır!
+   - Masaüstünde yaptığınız değişiklikler doğrudan telefonda görünür!
+
+### Yöntem B: GitHub Pages Üzerinden (Dışarıdayken Çevrimdışı / Hibrit)
+1. GitHub Pages üzerinden telefonunuza yüklediğinizde veriler telefonunuzun yerel hafızasında saklanır.
+2. Eve veya ofise geldiğinizde, mobil uygulamanın üst barındaki **"⚡ Çevrimdışı (Masaüstü Senkron)"** butonuna veya Ayarlar sekmesindeki **"Masaüstü ile Şimdi Eşitle"** butonuna dokunun.
+3. Bilgisayarınızın IP adresini girin (örn: `192.168.1.35`).
+4. Telefonunuzdaki tüm yeni işlemler masaüstü sunucusuna aktarılır ve eşitlenir!
 
 ---
 
-## 💻 4. Adım: Masaüstünden Mobil Uygulamayı Test Etme
+## 👥 3. Masaüstü Kullanıcıları Arasında Geçiş (Multi-User)
 
-Masaüstü bilgisayarınızdan mobil versiyonu istediğiniz zaman test etmek için:
-- `c:\Users\PC\Desktop\VizyonerFinans\` klasöründeki **`baslat_mobil.bat`** dosyasına çift tıklayın.
-- Veya doğrudan `VizyonerFinansMobile/index.html` dosyasını tarayıcınızda açıp F12 (Geliştirici Araçları) -> Cihaz Modu (Ctrl+Shift+M) ile istediğiniz telefon ekranında (iPhone 14/15, Samsung Galaxy) test edin.
+Mobil uygulamanın sağ üst köşesindeki **kullanıcı avatarına** (veya Ayarlar sekmesine) dokunduğunuzda, masaüstü `data/users.json` dosyasında kayıtlı tüm kullanıcılar listelenir:
+- **Sezer Akyol** (`admin`)
+- **Demo Yatırımcı** (`demo`)
+- **Pro Kullanıcı** (`pro`)
+- **Test User** (`test`)
+- **User 1** (`user1`)
+
+İstediğiniz kullanıcının üzerine dokunduğunuzda o kullanıcının tüm bütçe, portföy ve işlem verileri mobilde anında yüklenir!
+
+---
+
+## 💻 4. Bilgisayardan Test Etme:
+Masaüstü klasörünüzdeki **`baslat_mobil.bat`** dosyasına çift tıkladığınızda, sunucu durumunu otomatik algılar ve mobil sürümü dikey formatta tarayıcınızda açar.

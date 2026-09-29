@@ -173,10 +173,13 @@
       </div>
     </div>
     <div class="mobile-header-actions">
-      <button class="btn btn-sm btn-secondary" style="padding:6px 10px; border-radius:20px; font-size:0.72rem; display:flex; align-items:center; gap:4px;" onclick="switchMobileTab('settings')">
+      <div id="mobile-sync-badge" class="mobile-sync-badge" onclick="VizyonerSync.syncNow()" title="Masaüstü ile Senkronize Et">
+        <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#10b981; margin-right:4px;"></span>Masaüstü Senkron
+      </div>
+      <button class="btn btn-sm btn-secondary" style="padding:6px 10px; border-radius:20px; font-size:0.72rem; display:flex; align-items:center; gap:4px; width:auto;" onclick="switchMobileTab('settings')">
         <i data-lucide="settings" style="width:14px;"></i>
       </button>
-      <div class="mobile-avatar-btn" id="mobile-user-avatar" onclick="switchMobileTab('profile')">
+      <div class="mobile-avatar-btn" id="mobile-user-avatar" onclick="openMobileUserSwitcher()" title="Kullanıcı Değiştir">
         SA
       </div>
     </div>

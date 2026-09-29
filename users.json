@@ -1,0 +1,138 @@
+{
+  "admin": {
+    "id": "u-admin",
+    "username": "admin",
+    "password": "admin123",
+    "name": "Sezer Akyol",
+    "email": "sezer.akyol@vizyonerfinans.com",
+    "role": "admin",
+    "avatar": "SA",
+    "avatarColor": "#8b5cf6",
+    "currency": "TRY",
+    "targetIncome": 105000,
+    "createdAt": "2026-08-31",
+    "lastLogin": "2026-09-19 15:49:39",
+    "isActive": true,
+    "subscription": {
+      "tier": "pro",
+      "planName": "Ömür Boyu Kurumsal Pro Lisansı",
+      "validUntil": "2099-12-31",
+      "licenseKey": "VF-PRO-LIFETIME-ADMIN",
+      "isLifetime": true
+    }
+  },
+  "demo": {
+    "id": "u-demo",
+    "username": "demo",
+    "password": "demo123",
+    "name": "Demo Yatırımcı",
+    "email": "demo@vizyonerfinans.com",
+    "role": "user",
+    "avatar": "DY",
+    "avatarColor": "#06b6d4",
+    "currency": "TRY",
+    "targetIncome": 75000,
+    "createdAt": "2026-08-31",
+    "lastLogin": "2026-09-01 00:22:35",
+    "isActive": true,
+    "subscription": {
+      "tier": "trial",
+      "planName": "14 Günlük Pro Deneme",
+      "validUntil": "2026-09-19",
+      "licenseKey": "VF-TRIAL-DEMO-2026",
+      "isLifetime": false
+    }
+  },
+  "pro": {
+    "id": "u-pro",
+    "username": "pro",
+    "password": "pro123",
+    "name": "deneme deneme",
+    "email": "",
+    "role": "user",
+    "avatar": "DD",
+    "avatarColor": "#f59e0b",
+    "currency": "TRY",
+    "targetIncome": 85000,
+    "createdAt": "2026-09-05",
+    "lastLogin": "2026-09-05 17:00:54",
+    "isActive": true,
+    "subscription": {
+      "tier": "pro",
+      "planName": "1 Yıllık Pro Abonelik",
+      "validUntil": "2027-09-05",
+      "licenseKey": "VF-PRO-1Y-QPEU-7711",
+      "isLifetime": false,
+      "activatedAt": "2026-09-05 17:00:59"
+    }
+  },
+  "test": {
+    "id": "u-test",
+    "username": "test",
+    "password": "123456",
+    "name": "Test User",
+    "email": "",
+    "role": "user",
+    "avatar": "TU",
+    "avatarColor": "#f59e0b",
+    "currency": "TRY",
+    "targetIncome": 85000,
+    "createdAt": "2026-09-10",
+    "lastLogin": "2026-09-10 00:43:27",
+    "isActive": true,
+    "subscription": {
+      "tier": "free",
+      "planName": "Ücretsiz Plan (30 Günlük)",
+      "validUntil": "2026-10-10",
+      "licenseKey": "VF-FREE-30D-TEST",
+      "isLifetime": false,
+      "activatedAt": "2026-09-10 00:43:27"
+    }
+  },
+  "admin2": {
+    "id": "u-admin2",
+    "username": "admin2",
+    "password": "123456",
+    "name": "Test User",
+    "email": "",
+    "role": "user",
+    "avatar": "TU",
+    "avatarColor": "#ec4899",
+    "currency": "TRY",
+    "targetIncome": 85000,
+    "createdAt": "2026-09-12",
+    "lastLogin": "2026-09-12 14:38:02",
+    "isActive": true,
+    "subscription": {
+      "tier": "pro",
+      "planName": "1 Yıllık Pro Abonelik",
+      "validUntil": "2027-09-12",
+      "licenseKey": "VF-PRO-1Y-2026-TEST",
+      "isLifetime": false,
+      "activatedAt": "2026-09-12T11:43:09.056Z"
+    }
+  },
+  "mytestuser": {
+    "id": "u-mytestuser",
+    "username": "mytestuser",
+    "password": "123456",
+    "name": "Test User",
+    "email": "",
+    "role": "user",
+    "avatar": "TU",
+    "avatarColor": "#10b981",
+    "currency": "TRY",
+    "targetIncome": 85000,
+    "createdAt": "2026-09-13",
+    "lastLogin": "2026-09-13 16:53:19",
+    "isActive": true,
+    "subscription": {
+      "tier": "free",
+      "planName": "Ücretsiz Plan (30 Günlük)",
+      "validUntil": "2026-10-13",
+      "licenseKey": "VF-FREE-30D-MYTEST",
+      "isLifetime": false,
+      "activatedAt": "2026-09-13 16:53:19"
+    }
+  }
+}

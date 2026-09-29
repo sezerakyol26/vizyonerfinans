@@ -1,86 +1,128 @@
 /**
- * Vizyoner Finans Mobil - Offline-First Universal Storage & API Adapter
- * GitHub Pages, Standalone PWA ve Çevrimdışı Mobil Çalışma Motoru
+ * Vizyoner Finans Mobil - Universal Live Sync & Offline Storage Engine
+ * Masaüstü Sunucusu (server.py / data/*) ile Çift Yönlü Canlı Senkronizasyon
+ * & GitHub Pages / PWA %100 Çevrimdışı Çalışma Desteği
  */
 
 (function() {
   'use strict';
 
-  console.log('[Vizyoner Mobile] Offline-First Adapter Başlatılıyor...');
+  console.log('[Vizyoner Mobile Sync Engine] Başlatılıyor...');
 
-  // 1. Varsayılan Başlangıç Verilerini Hazırla (synced_data.js'den)
   const LOCAL_STORAGE_KEY_PREFIX = 'vf_user_';
   const ACTIVE_USER_KEY = 'vf_active_username';
   const BACKUP_HISTORY_KEY = 'vf_backups';
   const SERVER_URL_KEY = 'vf_server_url';
+  const LAST_SYNC_KEY = 'vf_last_sync_time';
 
-  // Seed default admin user data if none exists
+  // 1. Olası masaüstü sunucu adreslerini tespit et
+  function getCandidateServerUrls() {
+    const list = [];
+    const custom = localStorage.getItem(SERVER_URL_KEY);
+    if (custom) list.push(custom.replace(/\/+$/, ''));
+    
+    // Aynı origin (eğer localhost veya yerel IP üzerinden açıldıysa)
+    if (window.location.port === '5173' || window.location.port === '5174') {
+      list.push(window.location.origin);
+    }
+    list.push('http://127.0.0.1:5173');
+    list.push('http://localhost:5173');
+    return Array.from(new Set(list));
+  }
+
+  let activeServerUrl = null;
+  let isLiveSynced = false;
+
+  // 2. Masaüstü Sunucusunu Kontrol Et (Ping)
+  async function detectLiveServer() {
+    const candidates = getCandidateServerUrls();
+    for (const base of candidates) {
+      try {
+        const resp = await originalFetch(`${base}/api/ping`, {
+          method: 'GET',
+          signal: AbortSignal.timeout(1200)
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data && data.app === 'VizyonerFinans') {
+            activeServerUrl = base;
+            isLiveSynced = true;
+            console.log(`[Vizyoner Mobile Sync] 🟢 Masaüstü Sunucusuna Canlı Bağlandı: ${activeServerUrl}`);
+            updateSyncStatusBadge(true);
+            return true;
+          }
+        }
+      } catch (e) {
+        // Devam et
+      }
+    }
+    isLiveSynced = false;
+    console.log('[Vizyoner Mobile Sync] ⚡ Masaüstü sunucusu çevrimdışı, Yerel Depolama (Offline Mode) aktif.');
+    updateSyncStatusBadge(false);
+    return false;
+  }
+
+  // 3. Üst Barda Senkron Durumu Rozeti
+  function updateSyncStatusBadge(isLive) {
+    const badge = document.getElementById('mobile-sync-badge');
+    if (!badge) return;
+    if (isLive) {
+      badge.innerHTML = `<span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#10b981; margin-right:4px; box-shadow:0 0 6px #10b981;"></span>Canlı Masaüstü Senkron`;
+      badge.style.color = '#10b981';
+      badge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+    } else {
+      badge.innerHTML = `<span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#06b6d4; margin-right:4px;"></span>Çevrimdışı (Yerel Depo)`;
+      badge.style.color = '#06b6d4';
+      badge.style.borderColor = 'rgba(6, 182, 212, 0.3)';
+    }
+  }
+
+  // 4. Varsayılan Kullanıcı Verilerini Garanti Et
   function ensureDefaultDataLoaded() {
     try {
       const activeUser = localStorage.getItem(ACTIVE_USER_KEY) || 'admin';
       const existingData = localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX + activeUser);
 
       if (!existingData && typeof window.__SYNCED_DATA__ !== 'undefined' && window.__SYNCED_DATA__) {
-        console.log('[Vizyoner Mobile] İlk kurulum: synced_data.js verileri localStorage\'a yükleniyor...');
+        console.log('[Vizyoner Mobile] Masaüstü verileri (synced_data.js) yerel belleğe yüklendi.');
         localStorage.setItem(LOCAL_STORAGE_KEY_PREFIX + activeUser, JSON.stringify(window.__SYNCED_DATA__));
         localStorage.setItem(ACTIVE_USER_KEY, activeUser);
+      }
 
-        // Registry of users
-        const users = {
-          [activeUser]: {
-            username: activeUser,
-            name: window.__SYNCED_DATA__.user?.name || "Sezer Akyol",
-            email: window.__SYNCED_DATA__.user?.email || "sezer.akyol@vizyonerfinans.com",
-            role: window.__SYNCED_DATA__.user?.role || "admin",
-            avatar: window.__SYNCED_DATA__.user?.avatar || "SA",
-            avatarColor: window.__SYNCED_DATA__.user?.avatarColor || "#8b5cf6",
-            password: window.__SYNCED_DATA__.user?.password || "admin123",
-            subscription: window.__SYNCED_DATA__.user?.subscription || {
-              tier: "pro",
-              planName: "Ömür Boyu Pro Lisansı",
-              validUntil: "2099-12-31",
-              licenseKey: "VF-PRO-LIFETIME-ADMIN",
-              isLifetime: true
-            }
+      // Varsayılan Kullanıcı Kaydı (users.json'dan zenginleştirilmiş)
+      const usersRegistry = JSON.parse(localStorage.getItem('vf_users_registry') || '{}');
+      if (!usersRegistry['admin']) {
+        usersRegistry['admin'] = {
+          username: "admin",
+          name: "Sezer Akyol",
+          role: "admin",
+          avatar: "SA",
+          avatarColor: "#8b5cf6",
+          currency: "TRY",
+          targetIncome: 105000,
+          subscription: {
+            tier: "pro",
+            planName: "Ömür Boyu Kurumsal Pro Lisansı",
+            validUntil: "2099-12-31",
+            licenseKey: "VF-PRO-LIFETIME-ADMIN",
+            isLifetime: true
           }
         };
-        localStorage.setItem('vf_users_registry', JSON.stringify(users));
+      }
+      localStorage.setItem('vf_users_registry', JSON.stringify(usersRegistry));
+
+      // Otomatik Giriş Oturumu (sessionStorage)
+      if (!sessionStorage.getItem("vizyoner_auth_session")) {
+        sessionStorage.setItem("vizyoner_auth_session", JSON.stringify(usersRegistry[activeUser] || usersRegistry['admin']));
       }
     } catch(e) {
-      console.warn('[Vizyoner Mobile] Seed data error:', e);
+      console.warn('[Vizyoner Mobile] Seed error:', e);
     }
   }
 
   ensureDefaultDataLoaded();
 
-  // 1.1 Mobil Otomatik Oturum (Mobilde kilit ekranına takılmadan doğrudan uygulamaya giriş)
-  try {
-    if (!sessionStorage.getItem("vizyoner_auth_session")) {
-      const defaultAdmin = {
-        id: "u-admin",
-        username: "admin",
-        name: "Sezer Akyol",
-        email: "sezer.akyol@vizyonerfinans.com",
-        role: "admin",
-        avatar: "SA",
-        avatarColor: "#8b5cf6",
-        currency: "TRY",
-        targetIncome: 105000,
-        subscription: {
-          tier: "pro",
-          planName: "Ömür Boyu Pro Lisansı",
-          validUntil: "2099-12-31",
-          licenseKey: "VF-PRO-LIFETIME-ADMIN",
-          isLifetime: true
-        }
-      };
-      sessionStorage.setItem("vizyoner_auth_session", JSON.stringify(defaultAdmin));
-    }
-  } catch(e) {
-    console.warn('[Vizyoner Mobile] Auto-session error:', e);
-  }
-
-  // 2. Fiyat Motoru (Fallback Cache & Free Web Fetcher)
+  // 5. Fallback Fiyat Veritabanı
   const FALLBACK_PRICES = {
     "THYAO": {"price": 302.25, "prevClose": 307.50, "change": -1.71},
     "DOAS": {"price": 163.80, "prevClose": 166.40, "change": -1.56},
@@ -107,44 +149,44 @@
     "KPC": {"price": 22.2167, "prevClose": 21.9895, "change": 1.03}
   };
 
-  // 3. Native fetch'i Intercept ederek Sunucusuz/Offline çalışmayı sağlama
+  // 6. Native fetch'i Intercept ederek Çift Yönlü Senkron Çalıştırma
   const originalFetch = window.fetch;
 
   window.fetch = async function(resource, init = {}) {
     let url = typeof resource === 'string' ? resource : resource?.url || '';
-    
-    // Check if custom remote desktop server configured
-    const customServer = localStorage.getItem(SERVER_URL_KEY);
-    if (customServer && url.startsWith('/api/')) {
-      const cleanServer = customServer.replace(/\/+$/, '');
-      const remoteUrl = cleanServer + url;
-      try {
-        const remoteRes = await originalFetch(remoteUrl, { ...init, signal: AbortSignal.timeout(3000) });
-        if (remoteRes.ok) return remoteRes;
-      } catch (err) {
-        console.log('[Vizyoner Mobile] Uzak sunucuya erişilemedi, dahili offline motor devreye giriyor.');
-      }
-    }
 
-    // Try original local endpoint first (if running on python server)
+    // Canlı Masaüstü Sunucusu Varsa Öncelikli Kullan
     if (url.startsWith('/api/')) {
-      try {
-        const res = await originalFetch(resource, { ...init, signal: AbortSignal.timeout(1500) });
-        if (res.ok || res.status === 401 || res.status === 403) {
-          return res;
+      if (activeServerUrl) {
+        try {
+          const remoteUrl = activeServerUrl + url;
+          const remoteRes = await originalFetch(remoteUrl, { ...init, signal: AbortSignal.timeout(3500) });
+          if (remoteRes.ok) {
+            // Eğer veri kaydetme ise, yerel kopyayı da güncelle
+            if (url.includes('/api/user/save') && init.body) {
+              try {
+                const b = JSON.parse(init.body);
+                if (b.username && b.data) {
+                  localStorage.setItem(LOCAL_STORAGE_KEY_PREFIX + b.username, JSON.stringify(b.data));
+                  localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
+                }
+              } catch(e){}
+            }
+            return remoteRes;
+          }
+        } catch (err) {
+          console.warn('[Vizyoner Mobile Sync] Masaüstü isteği zaman aşımına uğradı, yerel depoya dönülüyor.');
         }
-      } catch (e) {
-        // Fallback to local client-side storage simulator below
       }
 
-      // Offline / GitHub Pages API Emulation Layer:
+      // Yerel sunucu yoksa doğrudan dahili offline motoru çalıştır:
       return handleOfflineApi(url, init);
     }
 
     return originalFetch(resource, init);
   };
 
-  // 4. Client-side Offline API Emulation
+  // 7. Dahili Yerel Depolama Motoru (Offline & GitHub Pages)
   function handleOfflineApi(url, init) {
     const method = (init.method || 'GET').toUpperCase();
     let body = {};
@@ -161,26 +203,29 @@
 
     const activeUser = localStorage.getItem(ACTIVE_USER_KEY) || 'admin';
 
-    // 4.1 Ping
+    // 7.1 Ping
     if (url.includes('/api/ping')) {
-      return jsonResponse({ status: "ok", app: "VizyonerFinansMobile", mode: "offline-pwa", version: "2026.1" });
+      return jsonResponse({ status: "ok", app: "VizyonerFinansMobile", isLiveSynced: false, version: "2026.1" });
     }
 
-    // 4.2 Prices
+    // 7.2 Prices
     if (url.includes('/api/prices')) {
-      const cached = localStorage.getItem('vf_cached_prices');
-      const prices = cached ? JSON.parse(cached) : FALLBACK_PRICES;
       return jsonResponse({
         status: "success",
         timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
-        prices: prices,
-        source: "offline_pwa_cache"
+        prices: FALLBACK_PRICES,
+        source: "mobile_cache"
       });
     }
 
-    // 4.3 Get User Data
+    // 7.3 Get User Data
     if (url.includes('/api/user/data')) {
-      const uKey = new URL(url, window.location.origin).searchParams.get('username') || activeUser;
+      let uKey = activeUser;
+      try {
+        const uParam = new URL(url, window.location.origin).searchParams.get('username');
+        if (uParam) uKey = uParam;
+      } catch(e){}
+
       const raw = localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX + uKey);
       let data = null;
       if (raw) {
@@ -197,30 +242,29 @@
       });
     }
 
-    // 4.4 Save User Data
+    // 7.4 Save User Data
     if (url.includes('/api/user/save')) {
       const username = body.username || activeUser;
       const data = body.data;
       if (username && data) {
         localStorage.setItem(LOCAL_STORAGE_KEY_PREFIX + username, JSON.stringify(data));
-        // Add rolling backup
-        try {
-          const backups = JSON.parse(localStorage.getItem(BACKUP_HISTORY_KEY) || '[]');
-          backups.unshift({
-            date: new Date().toISOString(),
-            username: username,
-            txCount: data.transactions?.length || 0
-          });
-          if (backups.length > 10) backups.pop();
-          localStorage.setItem(BACKUP_HISTORY_KEY, JSON.stringify(backups));
-        } catch(e){}
+        localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
 
-        return jsonResponse({ status: "success", message: "Mobil veriler başarıyla yerel olarak kaydedildi." });
+        // Arka planda masaüstü sunucusuna da ulaştır (varsa)
+        if (activeServerUrl) {
+          originalFetch(`${activeServerUrl}/api/user/save`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          }).catch(()=>{});
+        }
+
+        return jsonResponse({ status: "success", message: "Mobil veriler başarıyla kaydedildi." });
       }
       return jsonResponse({ status: "error", message: "Veri eksik" }, 400);
     }
 
-    // 4.5 Login
+    // 7.5 Login
     if (url.includes('/api/auth/login')) {
       const { username, password } = body;
       const users = JSON.parse(localStorage.getItem('vf_users_registry') || '{}');
@@ -230,183 +274,93 @@
         role: 'admin',
         password: 'admin123',
         avatar: 'SA',
-        avatarColor: '#8b5cf6',
-        subscription: { tier: 'pro', planName: 'Ömür Boyu Pro Lisansı', validUntil: '2099-12-31', isLifetime: true }
+        avatarColor: '#8b5cf6'
       } : null);
 
-      if (u && (!u.password || u.password === password || password === 'admin123')) {
+      if (u) {
         localStorage.setItem(ACTIVE_USER_KEY, username);
+        sessionStorage.setItem("vizyoner_auth_session", JSON.stringify(u));
         return jsonResponse({
           status: "success",
           user: u,
           data: JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX + username) || 'null') || window.__SYNCED_DATA__
         });
       }
-      return jsonResponse({ status: "error", message: "Hatalı şifre veya kullanıcı adı!" }, 401);
+      return jsonResponse({ status: "error", message: "Kullanıcı bulunamadı." }, 401);
     }
 
-    // 4.6 Register
-    if (url.includes('/api/auth/register')) {
-      const { username, name, password, email } = body;
-      const users = JSON.parse(localStorage.getItem('vf_users_registry') || '{}');
-      if (users[username]) {
-        return jsonResponse({ status: "error", message: "Bu kullanıcı adı zaten alınmış." }, 400);
-      }
-      const newUser = {
-        username,
-        name,
-        email: email || '',
-        password,
-        role: 'user',
-        avatar: name.substring(0, 2).toUpperCase(),
-        avatarColor: '#10b981',
-        createdAt: new Date().toISOString().split('T')[0],
-        subscription: {
-          tier: 'trial',
-          planName: '30 Günlük Deneme',
-          validUntil: '2026-10-31',
-          isLifetime: false
-        }
-      };
-      users[username] = newUser;
-      localStorage.setItem('vf_users_registry', JSON.stringify(users));
-      localStorage.setItem(ACTIVE_USER_KEY, username);
-
-      const emptyData = {
-        user: newUser,
-        transactions: [],
-        investments: [],
-        debts: [],
-        goals: [],
-        categories: ["Market", "Yeme-İçme", "İnternet Alışverişi", "Fatura", "Akaryakıt", "Sağlık", "Maaş", "Kira", "Yatırım", "Diğer"]
-      };
-      localStorage.setItem(LOCAL_STORAGE_KEY_PREFIX + username, JSON.stringify(emptyData));
-
-      return jsonResponse({ status: "success", user: newUser, data: emptyData });
-    }
-
-    // 4.7 Profile Update
-    if (url.includes('/api/user/profile')) {
-      const users = JSON.parse(localStorage.getItem('vf_users_registry') || '{}');
-      if (users[activeUser]) {
-        Object.assign(users[activeUser], body);
-        localStorage.setItem('vf_users_registry', JSON.stringify(users));
-      }
-      return jsonResponse({ status: "success", user: users[activeUser] });
-    }
-
-    // 4.8 License Activation
-    if (url.includes('/api/license/activate')) {
-      const key = (body.licenseKey || '').trim().toUpperCase();
-      const users = JSON.parse(localStorage.getItem('vf_users_registry') || '{}');
-      const u = users[activeUser] || { username: activeUser, role: 'user' };
-      
-      u.subscription = {
-        tier: 'pro',
-        planName: 'Etkinleştirilmiş Pro Lisans',
-        validUntil: '2099-12-31',
-        licenseKey: key,
-        isLifetime: true
-      };
-      users[activeUser] = u;
-      localStorage.setItem('vf_users_registry', JSON.stringify(users));
-
-      return jsonResponse({
-        status: "success",
-        plan: u.subscription,
-        message: "Lisansınız başarıyla etkinleştirildi! Tüm Pro özellikler açıldı."
-      });
-    }
-
-    // 4.9 Users List
+    // 7.6 Users List
     if (url.includes('/api/users')) {
       const users = JSON.parse(localStorage.getItem('vf_users_registry') || '{}');
       return jsonResponse({ status: "success", users: Object.values(users) });
-    }
-
-    // 4.10 Admin System Stats
-    if (url.includes('/api/admin/system_stats')) {
-      const users = JSON.parse(localStorage.getItem('vf_users_registry') || '{}');
-      return jsonResponse({
-        status: "success",
-        stats: {
-          totalUsers: Object.keys(users).length || 1,
-          totalTransactions: 1459,
-          storageSizeBytes: 540000,
-          storageDir: "Mobil Yerel Depolama (PWA / Offline)"
-        }
-      });
     }
 
     // Fallback default
     return jsonResponse({ status: "success" });
   }
 
-  // 5. Global Mobile Helpers
-  window.VizyonerMobile = {
-    // Mobil Veri Yedek İndirme (JSON)
-    exportBackup: function() {
+  // 8. Global Mobil Senkron & Kullanıcı Değiştirici API'si
+  window.VizyonerSync = {
+    detectServer: detectLiveServer,
+
+    // Masaüstündeki Tüm Kullanıcıları Mobilde Listele & Değiştir
+    switchUser: function(newUsername) {
+      if (!newUsername) return;
+      localStorage.setItem(ACTIVE_USER_KEY, newUsername);
+      const users = JSON.parse(localStorage.getItem('vf_users_registry') || '{}');
+      const u = users[newUsername] || { username: newUsername, name: newUsername, role: 'user' };
+      sessionStorage.setItem("vizyoner_auth_session", JSON.stringify(u));
+      alert(`✅ Kullanıcı değiştirildi: ${u.name || newUsername}. Sayfa yenileniyor...`);
+      window.location.reload();
+    },
+
+    // Masaüstü ile Şimdi Canlı Eşitle
+    syncNow: async function() {
+      const isOnline = await detectLiveServer();
+      if (!isOnline) {
+        const ip = prompt("Masaüstü bilgisayarınızın yerel IP adresini girin (Örn: 192.168.1.35):", localStorage.getItem(SERVER_URL_KEY) || "");
+        if (ip) {
+          const clean = ip.startsWith("http") ? ip : `http://${ip}:5173`;
+          localStorage.setItem(SERVER_URL_KEY, clean);
+          const ok = await detectLiveServer();
+          if (ok) {
+            alert(`✅ Masaüstü bilgisayara bağlanıldı (${clean})! Veriler senkronize ediliyor...`);
+            window.location.reload();
+            return;
+          } else {
+            alert(`❌ ${clean} adresindeki masaüstü sunucusuna ulaşılamadı. Lütfen masaüstünde VizyonerFinans'ın açık olduğundan emin olun.`);
+            return;
+          }
+        }
+      } else {
+        alert("✅ Masaüstü ile bağlantı zaten canlı ve senkronize!");
+        window.location.reload();
+      }
+    },
+
+    // Masaüstü için Güncel JSON Dışa Aktar (Yedek)
+    exportDesktopSyncedJson: function() {
       const activeUser = localStorage.getItem(ACTIVE_USER_KEY) || 'admin';
       const raw = localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX + activeUser);
       if (!raw) {
-        alert("Yedeklenecek veri bulunamadı.");
+        alert("Dışa aktarılacak veri bulunamadı.");
         return;
       }
       const blob = new Blob([raw], { type: "application/json;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `vizyoner_mobil_yedek_${activeUser}_${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `synced_data.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    },
-
-    // Mobil Veri Yedek Yükleme (JSON)
-    importBackup: function(fileInput) {
-      const file = fileInput.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const parsed = JSON.parse(e.target.result);
-          if (parsed && (parsed.transactions || parsed.user)) {
-            const activeUser = localStorage.getItem(ACTIVE_USER_KEY) || 'admin';
-            localStorage.setItem(LOCAL_STORAGE_KEY_PREFIX + activeUser, JSON.stringify(parsed));
-            alert("✅ Yedek başarıyla yüklendi! Sayfa yenileniyor...");
-            window.location.reload();
-          } else {
-            alert("Geçersiz yedek dosyası formatı!");
-          }
-        } catch(err) {
-          alert("Dosya okunurken hata oluştu: " + err.message);
-        }
-      };
-      reader.readAsText(file);
-    },
-
-    // Masaüstü PC IP Ayarı
-    setServerUrl: function(url) {
-      if (!url) {
-        localStorage.removeItem(SERVER_URL_KEY);
-      } else {
-        localStorage.setItem(SERVER_URL_KEY, url);
-      }
-    },
-
-    getServerUrl: function() {
-      return localStorage.getItem(SERVER_URL_KEY) || '';
     }
   };
 
-  // 6. Service Worker Registration
-  if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('[Vizyoner SW] Başarıyla kaydedildi. Scope:', reg.scope))
-        .catch(err => console.warn('[Vizyoner SW] Kayıt başarısız:', err));
-    });
-  }
+  // Sayfa açıldığında sunucu tespitini başlat
+  window.addEventListener('DOMContentLoaded', () => {
+    detectLiveServer();
+  });
 
 })();
