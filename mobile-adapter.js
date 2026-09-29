@@ -53,6 +53,33 @@
 
   ensureDefaultDataLoaded();
 
+  // 1.1 Mobil Otomatik Oturum (Mobilde kilit ekranına takılmadan doğrudan uygulamaya giriş)
+  try {
+    if (!sessionStorage.getItem("vizyoner_auth_session")) {
+      const defaultAdmin = {
+        id: "u-admin",
+        username: "admin",
+        name: "Sezer Akyol",
+        email: "sezer.akyol@vizyonerfinans.com",
+        role: "admin",
+        avatar: "SA",
+        avatarColor: "#8b5cf6",
+        currency: "TRY",
+        targetIncome: 105000,
+        subscription: {
+          tier: "pro",
+          planName: "Ömür Boyu Pro Lisansı",
+          validUntil: "2099-12-31",
+          licenseKey: "VF-PRO-LIFETIME-ADMIN",
+          isLifetime: true
+        }
+      };
+      sessionStorage.setItem("vizyoner_auth_session", JSON.stringify(defaultAdmin));
+    }
+  } catch(e) {
+    console.warn('[Vizyoner Mobile] Auto-session error:', e);
+  }
+
   // 2. Fiyat Motoru (Fallback Cache & Free Web Fetcher)
   const FALLBACK_PRICES = {
     "THYAO": {"price": 302.25, "prevClose": 307.50, "change": -1.71},

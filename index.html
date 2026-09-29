@@ -6,21 +6,15 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Vizyoner">
-  <meta name="theme-color" content="#0b0f19">
+  <title>Vizyoner Finans Mobil</title>
+  <meta name="description" content="Vizyoner Finans Mobil - Canlı Piyasa & Bütçe Yönetim Sistemi">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="stylesheet" href="mobile.css">
-  <title>Vizyoner Finans - Canlı Piyasa & Bütçe Yönetim Sistemi</title>
-  <meta name="description" content="Vizyoner Finans ile bütçenizi yönetin, borçlarınızı takip edin, canlı piyasa fiyatlarıyla portföyünüzü izleyin ve akıllı finans danışmanınız ile finansal hedeflerinize ulaşın.">
   
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  
-  <!-- Local Fonts (Full Offline Support) -->
+  <!-- Local Fonts -->
   <link rel="stylesheet" href="vendor/fonts/fonts.css?v=3.2">
   
-  <!-- Local Vendor Libraries (Full Offline Support) -->
+  <!-- Local Vendor Libraries -->
   <script src="vendor/lucide.min.js?v=3.2"></script>
   <script src="vendor/chart.umd.min.js?v=3.2"></script>
   <script src="vendor/confetti.browser.min.js?v=3.2"></script>
@@ -28,13 +22,14 @@
   <script src="vendor/xlsx.full.min.js?v=3.2"></script>
   
   <link rel="stylesheet" href="styles.css?v=3.2">
+  <link rel="stylesheet" href="mobile.css?v=3.2">
 </head>
 <body>
 
 <!-- ===================================================================
      FULL-SCREEN LOGIN SCREEN (GİRİŞ EKRANI)
      =================================================================== -->
-<div id="auth-lock-screen" class="auth-lock-screen">
+<div id="auth-lock-screen" class="auth-lock-screen" style="display:none;">
   <div class="auth-card auth-card-wide">
     <div class="auth-brand">
       <div class="auth-logo-icon">
@@ -164,7 +159,7 @@
   </div>
 </div>
 
-<div class="app-container" id="app-root" style="display:none;">
+<div class="app-container" id="app-root" style="display:block;">
 
   <!-- MOBILE TOP BAR -->
   <header class="mobile-top-bar">
