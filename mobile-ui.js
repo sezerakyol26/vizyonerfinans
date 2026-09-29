@@ -38,11 +38,13 @@ window.switchMobileTab = function(tabName) {
   // 2. Görünümleri Aç / Kapat
   const moreView = document.getElementById('view-more');
 
+  // Önce tüm inline display stillerini temizle
+  document.querySelectorAll('.view-section').forEach(sec => {
+    sec.classList.remove('active-view');
+    sec.style.removeProperty('display');
+  });
+
   if (tabName === 'more') {
-    document.querySelectorAll('.view-section').forEach(sec => {
-      sec.classList.remove('active-view');
-      sec.style.display = 'none';
-    });
     if (moreView) {
       moreView.style.display = 'block';
       moreView.classList.add('active-view');
@@ -55,16 +57,12 @@ window.switchMobileTab = function(tabName) {
 
     if (typeof window.navigateTo === 'function') {
       window.navigateTo(tabName);
-    } else {
-      document.querySelectorAll('.view-section').forEach(sec => {
-        sec.classList.remove('active-view');
-        sec.style.display = 'none';
-      });
-      const targetSec = document.getElementById('view-' + tabName);
-      if (targetSec) {
-        targetSec.classList.add('active-view');
-        targetSec.style.display = 'flex';
-      }
+    }
+
+    const targetSec = document.getElementById('view-' + tabName);
+    if (targetSec) {
+      targetSec.classList.add('active-view');
+      targetSec.style.display = 'flex';
     }
   }
 

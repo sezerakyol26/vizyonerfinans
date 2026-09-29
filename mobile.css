@@ -294,10 +294,13 @@ body {
 }
 
 .kpi-value {
-  font-size: 1.25rem !important;
+  font-size: clamp(0.92rem, 3.8vw, 1.25rem) !important;
   font-weight: 800 !important;
   color: #fff !important;
   margin-top: 4px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 .kpi-sub {
@@ -534,9 +537,20 @@ canvas {
   background: rgba(0, 0, 0, 0.75) !important;
   backdrop-filter: blur(8px) !important;
   -webkit-backdrop-filter: blur(8px) !important;
-  z-index: 100000 !important;
+  z-index: 1000000 !important;
   align-items: flex-end !important;
+  justify-content: center !important;
   padding: 0 !important;
+  display: none !important; /* Varsayılan olarak kapalı */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+}
+
+.bottom-sheet-overlay.active, .modal-overlay.active {
+  display: flex !important; /* Yalnızca active sınıfı varken açık */
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
 .bottom-sheet-content, .modal-card {
@@ -550,6 +564,12 @@ canvas {
   overflow-y: auto !important;
   margin: 0 !important;
   box-sizing: border-box !important;
+  animation: slideUpMobile 0.25s cubic-bezier(0.32, 0.72, 0, 1) !important;
+}
+
+@keyframes slideUpMobile {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
 
 .bottom-sheet-handle {
@@ -559,3 +579,4 @@ canvas {
   border-radius: 2px !important;
   margin: 0 auto 14px auto !important;
 }
+
