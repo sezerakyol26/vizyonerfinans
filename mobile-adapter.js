@@ -143,10 +143,10 @@
     "BTC": {"price": 79025.00, "prevClose": 77695.00, "change": 1.71},
     "GRAM": {"price": 6949.50, "prevClose": 6949.50, "change": 0.35},
     "ALTINS1": {"price": 69.50, "prevClose": 69.20, "change": 0.43},
-    "HKH": {"price": 9.0024, "prevClose": 8.9523, "change": 0.56},
-    "MJG": {"price": 11.7432, "prevClose": 11.4756, "change": 2.33},
-    "CPU": {"price": 3.9540, "prevClose": 3.9497, "change": 0.11},
-    "KPC": {"price": 22.2167, "prevClose": 21.9895, "change": 1.03}
+    "HKH": {"price": 8.2118, "prevClose": 8.1641, "change": 0.58},
+    "MJG": {"price": 10.5027, "prevClose": 10.2573, "change": 2.39},
+    "CPU": {"price": 4.0119, "prevClose": 4.0195, "change": -0.19},
+    "KPC": {"price": 20.4020, "prevClose": 20.1906, "change": 1.05}
   };
 
   // 6. Native fetch'i Intercept ederek Çift Yönlü Senkron Çalıştırma

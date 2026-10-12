@@ -1,16 +1,17 @@
 /**
  * Vizyoner Finans Mobil - Ultra-Responsive Portrait Mobile Design System
  * Dikey Mobil Format Çerçeveleme & Akıcı Dokunmatik UI Mimarisi
+ * Telefon Ekranlarına Tam Uyumlu (Portrait Form Factor, Zero-Overflow, 44px Touch Targets)
  */
 
 :root {
-  --mobile-nav-height: 64px;
+  --mobile-nav-height: 60px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --mobile-header-height: 58px;
+  --mobile-header-height: 54px;
   --bg-dark: #070a13;
-  --card-bg: rgba(15, 23, 42, 0.82);
-  --card-border: rgba(255, 255, 255, 0.09);
+  --card-bg: rgba(15, 23, 42, 0.88);
+  --card-border: rgba(255, 255, 255, 0.08);
   --accent-cyan: #06b6d4;
   --accent-purple: #8b5cf6;
   --accent-green: #10b981;
@@ -37,21 +38,31 @@ html, body {
 }
 
 body {
-  padding-bottom: calc(var(--mobile-nav-height) + var(--safe-bottom) + 32px) !important;
+  padding-bottom: calc(var(--mobile-nav-height) + var(--safe-bottom) + 24px) !important;
 }
 
-/* 2. Container Overrides for Portrait Mobile Screen */
+/* 2. Container Overrides: Telefon Ekranı Dikey Çerçeveleme */
 .app-container {
-  display: block !important;
+  display: flex !important;
+  flex-direction: column !important;
   width: 100% !important;
-  max-width: 100vw !important;
-  min-width: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  max-width: 480px !important; /* Standart dikey akıllı telefon en boy oranı */
+  margin: 0 auto !important;
+  min-height: 100vh !important;
+  background-color: var(--bg-dark) !important;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.8) !important;
+  position: relative !important;
   overflow-x: hidden !important;
 }
 
-/* Masaüstü sol menüsünü ve üst barını mobilde tamamen gizle */
+@media (max-width: 480px) {
+  .app-container {
+    max-width: 100vw !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Masaüstü sol menüsünü ve masaüstü üst barını mobilde tamamen gizle */
 .sidebar, aside.sidebar, .top-header, header.top-header {
   display: none !important;
   width: 0 !important;
@@ -65,10 +76,17 @@ body {
 .main-wrapper {
   margin: 0 !important;
   width: 100% !important;
-  max-width: 100vw !important;
-  min-width: 0 !important;
-  padding: 10px 12px 24px 12px !important;
+  max-width: 100% !important;
+  padding: 8px 10px 24px 10px !important;
   box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+.content-body {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
   overflow-x: hidden !important;
 }
 
@@ -79,46 +97,51 @@ body {
   left: 0 !important;
   right: 0 !important;
   z-index: 1000 !important;
-  background: rgba(11, 15, 25, 0.95) !important;
-  backdrop-filter: blur(24px) !important;
-  -webkit-backdrop-filter: blur(24px) !important;
+  background: rgba(11, 15, 25, 0.96) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
   border-bottom: 1px solid var(--card-border) !important;
-  padding: var(--safe-top) 12px 0 12px !important;
+  padding: var(--safe-top) 10px 0 10px !important;
   height: calc(var(--mobile-header-height) + var(--safe-top)) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
   width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .mobile-brand {
   display: flex !important;
   align-items: center !important;
-  gap: 10px !important;
+  gap: 8px !important;
 }
 
 .mobile-logo-icon {
-  width: 36px !important;
-  height: 36px !important;
-  border-radius: 11px !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 9px !important;
   background: linear-gradient(135deg, #8b5cf6, #06b6d4) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   color: #fff !important;
-  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.45) !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.45) !important;
   flex-shrink: 0 !important;
+}
+.mobile-logo-icon i, .mobile-logo-icon svg {
+  width: 18px !important;
+  height: 18px !important;
 }
 
 .mobile-brand-title {
-  font-size: 1.02rem !important;
+  font-size: 0.96rem !important;
   font-weight: 800 !important;
   color: #fff !important;
   line-height: 1.2 !important;
 }
 
 .mobile-brand-tag {
-  font-size: 0.65rem !important;
+  font-size: 0.62rem !important;
   color: #06b6d4 !important;
   font-weight: 700 !important;
   text-transform: uppercase !important;
@@ -128,15 +151,14 @@ body {
 .mobile-header-actions {
   display: flex !important;
   align-items: center !important;
-  gap: 8px !important;
+  gap: 6px !important;
 }
 
-/* Senkron Rozeti */
 .mobile-sync-badge {
-  font-size: 0.68rem !important;
+  font-size: 0.65rem !important;
   font-weight: 700 !important;
-  padding: 4px 9px !important;
-  border-radius: 20px !important;
+  padding: 3px 8px !important;
+  border-radius: 16px !important;
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid var(--card-border) !important;
   display: inline-flex !important;
@@ -146,17 +168,17 @@ body {
 }
 
 .mobile-avatar-btn {
-  width: 34px !important;
-  height: 34px !important;
+  width: 30px !important;
+  height: 30px !important;
   border-radius: 50% !important;
   background: linear-gradient(135deg, #8b5cf6, #ec4899) !important;
   color: #fff !important;
   font-weight: 800 !important;
-  font-size: 0.78rem !important;
+  font-size: 0.72rem !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  border: 2px solid rgba(255, 255, 255, 0.25) !important;
+  border: 2px solid rgba(255, 255, 255, 0.2) !important;
   cursor: pointer !important;
   flex-shrink: 0 !important;
 }
@@ -166,31 +188,39 @@ body {
   display: flex !important;
   overflow-x: auto !important;
   white-space: nowrap !important;
-  gap: 8px !important;
-  padding: 7px 12px !important;
+  gap: 6px !important;
+  padding: 5px 10px !important;
   background: rgba(15, 23, 42, 0.88) !important;
   border-bottom: 1px solid var(--card-border) !important;
   scrollbar-width: none !important;
   -webkit-overflow-scrolling: touch !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 .mobile-ticker-bar::-webkit-scrollbar { display: none !important; }
 
 .mobile-ticker-chip {
   display: inline-flex !important;
   align-items: center !important;
-  gap: 5px !important;
-  padding: 4px 10px !important;
-  border-radius: 16px !important;
+  gap: 4px !important;
+  padding: 3px 8px !important;
+  border-radius: 14px !important;
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  font-size: 0.72rem !important;
+  font-size: 0.68rem !important;
   font-weight: 600 !important;
+  flex-shrink: 0 !important;
 }
 .mobile-ticker-chip .up { color: #10b981 !important; }
 .mobile-ticker-chip .down { color: #f43f5e !important; }
 
+/* Çevrimdışı Notice Banner gizleme (Mobilde ekranı tıkamaz) */
+#offline-notice-banner, .offline-notice-banner {
+  display: none !important;
+}
+
 /* ===================================================================
-   5. TÜM SEKME (VIEW-SECTION) ÇERÇEVELEME KURALLARI (PORTRAIT FIT)
+   5. DİKEY FORMATTA TÜM KARTLAR, GRİDLER VE KPI DÜZENİ
    =================================================================== */
 
 .view-section {
@@ -203,177 +233,276 @@ body {
 .view-section.active-view {
   display: flex !important;
   flex-direction: column !important;
-  gap: 14px !important;
-  animation: mobileFadeIn 0.22s ease-out !important;
+  gap: 10px !important;
+  animation: mobileFadeIn 0.2s ease-out !important;
 }
 
 @keyframes mobileFadeIn {
-  from { opacity: 0; transform: translateY(5px); }
+  from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Sekme Başlık Çerçevesi (Her sekmenin tepesindeki şık başlık kartı) */
-.mobile-section-banner {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(6, 182, 212, 0.08)) !important;
-  border: 1px solid rgba(139, 92, 246, 0.3) !important;
-  border-radius: 16px !important;
-  padding: 12px 14px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  margin-bottom: 2px !important;
-  width: 100% !important;
-}
-
-.mobile-banner-left {
-  display: flex !important;
-  align-items: center !important;
-  gap: 10px !important;
-}
-
-.mobile-banner-icon {
-  width: 38px !important;
-  height: 38px !important;
-  border-radius: 10px !important;
-  background: rgba(139, 92, 246, 0.25) !important;
-  color: #c084fc !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex-shrink: 0 !important;
-}
-
-.mobile-banner-icon i, .mobile-banner-icon svg {
-  width: 20px !important;
-  height: 20px !important;
-}
-
-.mobile-banner-title {
-  font-size: 1.05rem !important;
-  font-weight: 800 !important;
-  color: #fff !important;
-  line-height: 1.2 !important;
-}
-
-.mobile-banner-sub {
-  font-size: 0.72rem !important;
-  color: rgba(255, 255, 255, 0.6) !important;
-  margin-top: 2px !important;
-}
-
 /* Dikey Formatta Tüm Kartlar & Paneller */
-.card, .summary-card, .metric-card, .chart-card, .table-card {
+.glass-card, .stats-card, .card, .summary-card, .metric-card, .chart-card, .table-card {
   width: 100% !important;
   max-width: 100% !important;
   background: var(--card-bg) !important;
   border: 1px solid var(--card-border) !important;
-  border-radius: 16px !important;
-  padding: 14px !important;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35) !important;
+  border-radius: 14px !important;
+  padding: 12px 10px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+  margin-top: 0 !important;
   margin-bottom: 0 !important;
   box-sizing: border-box !important;
 }
 
-/* KPI Izgarası: Dikey Mobilde 2 Sütun veya 1 Sütun */
-.dashboard-grid, .overview-grid, .kpi-row, .stats-row, .grid-4, .grid-3 {
+/* KPI Izgarası: Dikey Mobilde 2x2 Grid (Kompakt ve Şık) */
+.stats-grid-4, .dashboard-grid, .overview-grid, .kpi-row, .stats-row, .grid-4, .grid-3 {
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
-  gap: 10px !important;
+  gap: 8px !important;
   width: 100% !important;
+  margin-bottom: 2px !important;
 }
 
-.card-full-mobile, .full-width, .chart-card, .table-card {
-  grid-column: 1 / -1 !important;
+.stats-card {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  padding: 10px 9px !important;
+  border-radius: 12px !important;
 }
 
-/* KPI Kartı İçerik Çerçevesi */
-.kpi-title {
-  font-size: 0.74rem !important;
+.stats-card-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 4px !important;
+}
+
+.stats-title, .kpi-title {
+  font-size: 0.67rem !important;
   font-weight: 600 !important;
-  color: rgba(255, 255, 255, 0.6) !important;
-}
-
-.kpi-value {
-  font-size: clamp(0.92rem, 3.8vw, 1.25rem) !important;
-  font-weight: 800 !important;
-  color: #fff !important;
-  margin-top: 4px !important;
+  color: rgba(255, 255, 255, 0.65) !important;
+  line-height: 1.2 !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
 }
 
-.kpi-sub {
-  font-size: 0.70rem !important;
-  margin-top: 3px !important;
+.stats-icon-wrap {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 7px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+.stats-icon-wrap i, .stats-icon-wrap svg {
+  width: 13px !important;
+  height: 13px !important;
 }
 
-/* 6. Formlar ve Filtreler Dikey Çerçeveleme */
-.filter-bar, .action-bar, .search-bar-wrap, .form-row, .modal-grid-2 {
+/* Sayıların ve Para Biriminin Asla Kırılmaması */
+.stats-amount, .kpi-value {
+  font-size: clamp(0.92rem, 3.8vw, 1.15rem) !important;
+  font-weight: 800 !important;
+  color: #fff !important;
+  line-height: 1.2 !important;
+  margin: 2px 0 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 2px !important;
+}
+
+.stats-footer, .kpi-sub {
+  font-size: 0.62rem !important;
+  margin-top: 1px !important;
+  line-height: 1.2 !important;
+}
+
+.trend-badge {
+  font-size: 0.62rem !important;
+  padding: 2px 5px !important;
+  border-radius: 5px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: inline-block !important;
+  max-width: 100% !important;
+  line-height: 1.2 !important;
+}
+
+/* ===================================================================
+   6. ÇOKLU SÜTUNLU GRİDLERİ DİKEY ÇERÇEVEYE (1-COLUMN) İNDİRME
+   =================================================================== */
+
+.charts-grid-2-1,
+.charts-grid-1-1,
+.charts-grid-3,
+.scenario-card-grid {
   display: flex !important;
   flex-direction: column !important;
   gap: 10px !important;
   width: 100% !important;
 }
 
-.form-control, input, select, textarea {
+/* Başlık Barları ve Filtreler Dikey Çerçeve */
+.card-header-bar {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+  margin-bottom: 10px !important;
   width: 100% !important;
-  height: 44px !important;
-  font-size: 0.88rem !important;
-  border-radius: 12px !important;
-  padding: 8px 12px !important;
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid var(--card-border) !important;
-  color: #fff !important;
 }
 
-.btn {
-  height: 44px !important;
-  font-size: 0.85rem !important;
+.card-heading {
+  font-size: 0.95rem !important;
+  font-weight: 800 !important;
+  color: #fff !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  line-height: 1.25 !important;
+}
+.card-heading i, .card-heading svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.card-subtext {
+  font-size: 0.68rem !important;
+  color: var(--text-secondary) !important;
+  margin-top: 1px !important;
+  line-height: 1.25 !important;
+  display: block !important;
+}
+
+/* Yatay Kaydırılabilir Filtre Butonları */
+.filter-tabs-bar,
+.chart-type-buttons,
+.chart-period-buttons {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  padding-bottom: 2px !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+.filter-tabs-bar::-webkit-scrollbar,
+.chart-type-buttons::-webkit-scrollbar,
+.chart-period-buttons::-webkit-scrollbar { display: none !important; }
+
+.filter-tab-btn,
+.chart-type-btn,
+.period-btn {
+  height: 29px !important;
+  padding: 4px 9px !important;
+  font-size: 0.70rem !important;
   font-weight: 700 !important;
-  border-radius: 12px !important;
+  border-radius: 8px !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 8px !important;
-  width: 100% !important; /* Dikey mobilde butonlar tam genişlik */
+  gap: 3px !important;
 }
 
-.btn-group {
-  display: flex !important;
+/* ===================================================================
+   7. AYLIK REEL SERVET GELİŞİMİ GRAFİK BÖLÜMÜ (REAL WEALTH MOBILE FIT)
+   =================================================================== */
+
+#section-monthly-real-wealth {
+  padding: 12px 10px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(139, 92, 246, 0.35) !important;
   width: 100% !important;
+  box-sizing: border-box !important;
+  margin-top: 0 !important;
+}
+
+#section-monthly-real-wealth .card-header-bar > div:first-child {
+  width: 100% !important;
+}
+
+#section-monthly-real-wealth .card-header-bar > div:last-child {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
   gap: 6px !important;
 }
-.btn-group .btn {
-  flex: 1 !important;
-}
 
-/* 7. Tabloların Dikey Mobilde Kaydırılabilir Çerçevesi */
-.table-responsive, .table-wrapper {
+/* 4 Quick Stat Chips: Dikey Mobilde 2x2 Kompakt Grid */
+#section-monthly-real-wealth > div[style*="grid-template-columns"] {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 6px !important;
+  margin-bottom: 10px !important;
   width: 100% !important;
-  overflow-x: auto !important;
-  -webkit-overflow-scrolling: touch !important;
-  display: block !important;
-  border-radius: 14px !important;
-  border: 1px solid var(--card-border) !important;
-  background: rgba(10, 15, 28, 0.6) !important;
-  margin-top: 6px !important;
 }
 
-table {
-  width: 100% !important;
-  min-width: 580px !important;
-  border-collapse: collapse !important;
+#section-monthly-real-wealth .stats-card {
+  padding: 8px 8px !important;
+  border-radius: 10px !important;
+  margin: 0 !important;
 }
 
-th, td {
-  padding: 10px 8px !important;
-  font-size: 0.78rem !important;
+#lbl-rw-current-val,
+#lbl-rw-diff-val,
+#lbl-rw-monthly-avg,
+#lbl-rw-ath-val {
+  font-size: clamp(0.90rem, 3.6vw, 1.08rem) !important;
+  font-weight: 800 !important;
+  margin: 2px 0 !important;
   white-space: nowrap !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
-/* 8. Grafikler (Canvas) Dikey Mobil Boyutlama */
+#section-monthly-real-wealth .chart-container {
+  height: 220px !important;
+  min-height: 220px !important;
+  max-height: 220px !important;
+  width: 100% !important;
+  position: relative !important;
+}
+
+/* Reel Servet Lejant ve Özet Alanı */
+#section-monthly-real-wealth > div:last-child {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  align-items: stretch !important;
+  margin-top: 8px !important;
+  padding-top: 8px !important;
+  font-size: 0.68rem !important;
+}
+
+#section-monthly-real-wealth > div:last-child > div:first-child {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+}
+
+#lbl-rw-summary-status {
+  font-size: 0.70rem !important;
+  text-align: center !important;
+  line-height: 1.25 !important;
+}
+
+/* ===================================================================
+   8. TÜM GRAFİKLER (CANVAS) DİKEY MOBİL BOYUTLAMA
+   =================================================================== */
+
 canvas {
   max-width: 100% !important;
   height: auto !important;
@@ -382,81 +511,91 @@ canvas {
 .chart-container, .chart-wrapper {
   position: relative !important;
   width: 100% !important;
-  height: 240px !important;
-  max-height: 260px !important;
+  height: 210px !important;
+  max-height: 225px !important;
 }
 
-/* 9. Menü (Daha Fazla) Ekranı */
-#view-more {
-  display: none;
+#chart-category-donut-container, #donut-chart-wrap {
+  height: 190px !important;
+  max-height: 190px !important;
+}
+
+/* ===================================================================
+   9. TABLOLARIN DİKEY MOBİLDE KAYDIRILABİLİR ÇERÇEVESİ
+   =================================================================== */
+
+.table-responsive, .table-wrapper {
   width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  display: block !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--card-border) !important;
+  background: rgba(10, 15, 28, 0.6) !important;
+  margin-top: 4px !important;
+}
+
+table {
+  width: 100% !important;
+  min-width: 460px !important;
+  border-collapse: collapse !important;
+}
+
+th, td {
+  padding: 8px 6px !important;
+  font-size: 0.74rem !important;
+  white-space: nowrap !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ===================================================================
+   10. FORMLAR, BUTONLAR VE DOKUNMATİK ELEMANLAR (44PX TARGETS)
+   =================================================================== */
+
+.form-control, input, select, textarea {
+  width: 100% !important;
+  height: 42px !important;
+  font-size: 0.86rem !important;
+  border-radius: 11px !important;
+  padding: 8px 12px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid var(--card-border) !important;
+  color: #fff !important;
   box-sizing: border-box !important;
 }
 
-#view-more.active-view {
-  display: block !important;
-  animation: mobileFadeIn 0.22s ease-out !important;
-}
-
-.mobile-drawer-grid {
-  display: grid !important;
-  grid-template-columns: repeat(3, 1fr) !important;
-  gap: 10px !important;
-  padding: 6px 0 !important;
-  width: 100% !important;
-}
-
-.drawer-app-item {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 14px !important;
-  padding: 14px 6px !important;
-  cursor: pointer !important;
-  text-align: center !important;
-  transition: transform 0.1s, background 0.1s !important;
-}
-
-.drawer-app-item:active {
-  background: rgba(255, 255, 255, 0.09) !important;
-  transform: scale(0.96) !important;
-}
-
-.drawer-icon-wrap {
-  width: 44px !important;
-  height: 44px !important;
-  border-radius: 12px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  color: #fff !important;
-}
-
-.drawer-icon-wrap i, .drawer-icon-wrap svg {
-  width: 20px !important;
-  height: 20px !important;
-}
-
-.drawer-app-label {
-  font-size: 0.72rem !important;
+.btn {
+  height: 42px !important;
+  font-size: 0.82rem !important;
   font-weight: 700 !important;
-  color: rgba(255, 255, 255, 0.9) !important;
-  line-height: 1.2 !important;
+  border-radius: 11px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
 }
 
-/* 10. Alt Navigasyon Dock (Mobile Bottom Nav) */
+.btn-sm {
+  height: 32px !important;
+  font-size: 0.72rem !important;
+  padding: 4px 10px !important;
+  border-radius: 8px !important;
+}
+
+/* ===================================================================
+   11. ALT NAVİGASYON DOCK (MOBILE BOTTOM NAV DİKEY SABİTLEME)
+   =================================================================== */
+
 .mobile-bottom-nav {
   position: fixed !important;
   bottom: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 100% !important;
+  max-width: 480px !important;
   height: calc(var(--mobile-nav-height) + var(--safe-bottom)) !important;
   padding-bottom: var(--safe-bottom) !important;
-  background: rgba(11, 15, 25, 0.97) !important;
+  background: rgba(11, 15, 25, 0.98) !important;
   backdrop-filter: blur(24px) !important;
   -webkit-backdrop-filter: blur(24px) !important;
   border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
@@ -464,7 +603,8 @@ canvas {
   align-items: center !important;
   justify-content: space-around !important;
   z-index: 99999 !important;
-  box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.65) !important;
+  box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.7) !important;
+  box-sizing: border-box !important;
 }
 
 .bottom-nav-item {
@@ -472,20 +612,20 @@ canvas {
   flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 3px !important;
+  gap: 2px !important;
   flex: 1 !important;
   height: 100% !important;
   color: rgba(255, 255, 255, 0.45) !important;
   text-decoration: none !important;
-  font-size: 0.68rem !important;
+  font-size: 0.65rem !important;
   font-weight: 700 !important;
   cursor: pointer !important;
   transition: all 0.15s ease !important;
 }
 
 .bottom-nav-item i, .bottom-nav-item svg {
-  width: 20px !important;
-  height: 20px !important;
+  width: 19px !important;
+  height: 19px !important;
 }
 
 .bottom-nav-item.active {
@@ -494,7 +634,7 @@ canvas {
 
 .bottom-nav-item.active i, .bottom-nav-item.active svg {
   transform: translateY(-2px) !important;
-  filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.8)) !important;
+  filter: drop-shadow(0 0 6px rgba(6, 182, 212, 0.8)) !important;
 }
 
 /* FAB (+) */
@@ -506,31 +646,34 @@ canvas {
 }
 
 .bottom-nav-fab {
-  width: 48px !important;
-  height: 48px !important;
+  width: 46px !important;
+  height: 46px !important;
   border-radius: 50% !important;
   background: linear-gradient(135deg, #8b5cf6, #06b6d4) !important;
   border: 3px solid #070a13 !important;
-  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.65) !important;
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.65) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   color: #fff !important;
   cursor: pointer !important;
-  transform: translateY(-13px) !important;
+  transform: translateY(-12px) !important;
   transition: transform 0.15s, box-shadow 0.15s !important;
 }
 
 .bottom-nav-fab:active {
-  transform: translateY(-11px) scale(0.92) !important;
+  transform: translateY(-10px) scale(0.92) !important;
 }
 
 .bottom-nav-fab i, .bottom-nav-fab svg {
-  width: 24px !important;
-  height: 24px !important;
+  width: 22px !important;
+  height: 22px !important;
 }
 
-/* 11. Quick Add Bottom Sheet & Modals */
+/* ===================================================================
+   12. NATIVE BOTTOM SHEETS (MODALLAR DİKEY ÇERÇEVEDE AŞAĞIDAN AÇILIR)
+   =================================================================== */
+
 .bottom-sheet-overlay, .modal-overlay {
   position: fixed !important;
   inset: 0 !important;
@@ -541,30 +684,30 @@ canvas {
   align-items: flex-end !important;
   justify-content: center !important;
   padding: 0 !important;
-  display: none !important; /* Varsayılan olarak kapalı */
+  display: none !important;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.22s ease;
+  transition: opacity 0.2s ease;
 }
 
 .bottom-sheet-overlay.active, .modal-overlay.active {
-  display: flex !important; /* Yalnızca active sınıfı varken açık */
+  display: flex !important;
   opacity: 1 !important;
   pointer-events: auto !important;
 }
 
-.bottom-sheet-content, .modal-card {
+.bottom-sheet-content, .modal-card, .modal-card-xl, .modal-card-lg {
   width: 100% !important;
-  max-width: 100% !important;
+  max-width: 480px !important;
+  margin: 0 auto !important;
   background: #0f172a !important;
-  border-radius: 22px 22px 0 0 !important;
+  border-radius: 20px 20px 0 0 !important;
   border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
-  padding: 16px 16px calc(var(--safe-bottom) + 16px) 16px !important;
-  max-height: 88vh !important;
+  padding: 14px 14px calc(var(--safe-bottom) + 16px) 14px !important;
+  max-height: 86vh !important;
   overflow-y: auto !important;
-  margin: 0 !important;
   box-sizing: border-box !important;
-  animation: slideUpMobile 0.25s cubic-bezier(0.32, 0.72, 0, 1) !important;
+  animation: slideUpMobile 0.22s cubic-bezier(0.32, 0.72, 0, 1) !important;
 }
 
 @keyframes slideUpMobile {
@@ -577,6 +720,70 @@ canvas {
   height: 4px !important;
   background: rgba(255, 255, 255, 0.3) !important;
   border-radius: 2px !important;
-  margin: 0 auto 14px auto !important;
+  margin: 0 auto 12px auto !important;
 }
 
+/* ===================================================================
+   13. MENÜ (DAHA FAZLA) EKRANI DİKEY GRID
+   =================================================================== */
+
+#view-more {
+  display: none;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+#view-more.active-view {
+  display: block !important;
+  animation: mobileFadeIn 0.2s ease-out !important;
+}
+
+.mobile-drawer-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 8px !important;
+  padding: 4px 0 !important;
+  width: 100% !important;
+}
+
+.drawer-app-item {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-radius: 12px !important;
+  padding: 12px 4px !important;
+  cursor: pointer !important;
+  text-align: center !important;
+  transition: transform 0.1s, background 0.1s !important;
+}
+
+.drawer-app-item:active {
+  background: rgba(255, 255, 255, 0.09) !important;
+  transform: scale(0.95) !important;
+}
+
+.drawer-icon-wrap {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 11px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #fff !important;
+}
+
+.drawer-icon-wrap i, .drawer-icon-wrap svg {
+  width: 19px !important;
+  height: 19px !important;
+}
+
+.drawer-app-label {
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  line-height: 1.2 !important;
+}

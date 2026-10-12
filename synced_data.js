@@ -19381,9 +19381,9 @@ window.__SYNCED_DATA__ = {
       "type": "Fon",
       "quantity": 1719,
       "buyPrice": 8.71,
-      "currentPrice": 9.2026,
+      "currentPrice": 8.2118,
       "date": "2026-02-16",
-      "dailyChange": 3.99,
+      "dailyChange": 0.58,
       "transactions": [
         {
           "id": "lot-1788604883141",
@@ -19421,9 +19421,9 @@ window.__SYNCED_DATA__ = {
       "type": "Fon",
       "quantity": 345,
       "buyPrice": 14.45,
-      "currentPrice": 9.2026,
+      "currentPrice": 10.5027,
       "date": "2026-01-28",
-      "dailyChange": 49.46,
+      "dailyChange": 2.39,
       "transactions": [
         {
           "id": "lot-1788604919385",
@@ -19555,9 +19555,9 @@ window.__SYNCED_DATA__ = {
       "type": "Fon",
       "quantity": 12085,
       "buyPrice": 3.58,
-      "currentPrice": 9.2026,
+      "currentPrice": 4.0119,
       "date": "2026-08-18",
-      "dailyChange": 80.39,
+      "dailyChange": -0.19,
       "transactions": [
         {
           "id": "lot-1788604113130",
@@ -19631,9 +19631,9 @@ window.__SYNCED_DATA__ = {
       "type": "Fon",
       "quantity": 2467,
       "buyPrice": 20.47,
-      "currentPrice": 9.2026,
+      "currentPrice": 20.402,
       "date": "2026-08-18",
-      "dailyChange": 39.42,
+      "dailyChange": 1.05,
       "transactions": [
         {
           "id": "lot-1788603996786",

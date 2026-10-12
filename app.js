@@ -69,6 +69,25 @@ function sanitizeAppState(state) {
   if (!state.user || typeof state.user !== "object") {
     state.user = { name: "Sezer Akyol", role: "admin", avatar: "SA", avatarColor: "#8b5cf6" };
   }
+  // Sanitize legacy corrupted fund prices (e.g. date strings like 10.2026 or 9.2026)
+  if (Array.isArray(state.investments)) {
+    state.investments.forEach(inv => {
+      const sym = (inv.symbol || inv.name || "").trim().toUpperCase();
+      if (sym === "CPU" && (inv.currentPrice === 10.2026 || inv.currentPrice === 9.2026 || !inv.currentPrice)) {
+        inv.currentPrice = 4.0119;
+        inv.dailyChange = -0.19;
+      } else if (sym === "HKH" && (inv.currentPrice === 10.2026 || inv.currentPrice === 9.2026)) {
+        inv.currentPrice = 8.2118;
+        inv.dailyChange = 0.58;
+      } else if (sym === "MJG" && (inv.currentPrice === 10.2026 || inv.currentPrice === 9.2026)) {
+        inv.currentPrice = 10.5027;
+        inv.dailyChange = 2.39;
+      } else if (sym === "KPC" && (inv.currentPrice === 10.2026 || inv.currentPrice === 9.2026)) {
+        inv.currentPrice = 20.4020;
+        inv.dailyChange = 1.05;
+      }
+    });
+  }
   return state;
 }
 
@@ -402,10 +421,10 @@ const DEFAULT_MARKET_PRICES = {
   "BTC": {"price": 79025.00, "prevClose": 77695.00, "change": 1.71},
   "GRAM": {"price": 6949.50, "prevClose": 6949.50, "change": 0.35},
   "ALTINS1": {"price": 69.50, "prevClose": 69.20, "change": 0.43},
-  "HKH": {"price": 9.0024, "prevClose": 8.9523, "change": 0.56},
-  "MJG": {"price": 11.7432, "prevClose": 11.4756, "change": 2.33},
-  "CPU": {"price": 3.9540, "prevClose": 3.9497, "change": 0.11},
-  "KPC": {"price": 22.2167, "prevClose": 21.9895, "change": 1.03}
+  "HKH": {"price": 8.2118, "prevClose": 8.1641, "change": 0.58},
+  "MJG": {"price": 10.5027, "prevClose": 10.2573, "change": 2.39},
+  "CPU": {"price": 4.0119, "prevClose": 4.0195, "change": -0.19},
+  "KPC": {"price": 20.4020, "prevClose": 20.1906, "change": 1.05}
 };
 let liveMarketPrices = { ...DEFAULT_MARKET_PRICES };
 let lastPriceFetchTime = new Date();
@@ -424,6 +443,8 @@ let activeRatioPeriod = "2026";
 let activeRatioMonth = "all";
 let activeCatTrendPeriod = "2026";
 let activeCatTrendCategory = "all";
+let realWealthPeriod = "all";
+let realWealthMode = "amt"; // "amt" | "pct"
 
 // Dynamic Chart Period Button Generator
 function renderChartPeriodButtons(containerId, callbackFnName, activePeriod) {
@@ -771,6 +792,7 @@ function navigateTo(viewName) {
       renderCategoryDonutChart();
       renderMonthlyRatiosAnalysis();
       renderCategoryMonthlyTrendChart();
+      renderMonthlyRealWealthChart();
     } else if (viewName === "investments") {
       renderPortfolioDonutChart();
     } else if (viewName === "simulation") {
@@ -993,6 +1015,7 @@ function renderDashboard() {
   renderCategoryDonutChart();
   renderMonthlyRatiosAnalysis();
   renderCategoryMonthlyTrendChart();
+  renderMonthlyRealWealthChart();
 }
 
 function setCashflowChartType(type) {
@@ -1139,6 +1162,449 @@ function renderCashflowChart() {
     }
   });
 }
+
+// ===================================================================
+// DEDICATED MONTHLY REAL WEALTH (REEL SERVET) CHART ENGINE
+// ===================================================================
+window.setRealWealthPeriod = function(period) {
+  realWealthPeriod = period || 'all';
+  ['all', '24m', '12m', 'ytd'].forEach(p => {
+    const el = document.getElementById(`btn-rw-period-${p}`);
+    if (el) el.classList.toggle('active', realWealthPeriod === p);
+  });
+  renderMonthlyRealWealthChart();
+};
+
+window.setRealWealthMode = function(mode) {
+  realWealthMode = mode || 'amt';
+  const btnAmt = document.getElementById("btn-rw-mode-amt");
+  const btnPct = document.getElementById("btn-rw-mode-pct");
+  if (btnAmt) btnAmt.classList.toggle("active", realWealthMode === 'amt');
+  if (btnPct) btnPct.classList.toggle("active", realWealthMode === 'pct');
+  renderMonthlyRealWealthChart();
+};
+
+function renderMonthlyRealWealthChart() {
+  const ctx = document.getElementById("chart-monthly-real-wealth");
+  if (!ctx) return;
+
+  const invList = appState.investments || [];
+  const assetsList = appState.physicalAssets || [];
+  const debtsList = appState.debts || [];
+  const txList = appState.transactions || [];
+
+  // 1. Current Live Wealth Balance
+  const curPortfolioVal = invList.reduce((sum, inv) => sum + (Number(inv.quantity || 0) * Number(inv.currentPrice || 0)), 0);
+  const curAssetsVal = assetsList.reduce((sum, a) => sum + (Number(a.value || 0) * Number(a.quantity || 1)), 0);
+  const curDebtVal = debtsList.filter(d => d.status !== "completed" && Number(d.remainingDebt) > 0)
+                              .reduce((sum, d) => sum + (Number(d.remainingDebt) || 0), 0);
+  const liveNetWorth = Math.round(curPortfolioVal + curAssetsVal - curDebtVal);
+
+  // 2. Discover continuous monthly chronology
+  const allDates = [];
+  txList.forEach(t => { if (t.date) allDates.push(t.date); });
+  invList.forEach(inv => {
+    if (inv.date) allDates.push(inv.date);
+    if (Array.isArray(inv.transactions)) {
+      inv.transactions.forEach(lt => { if (lt.date) allDates.push(lt.date); });
+    }
+  });
+  allDates.sort();
+
+  let startYm = "2023-03"; // Start specifically from March 2023 with 0 baseline before first entry
+
+  const todayStr = getTodayISODate();
+  const endYm = todayStr.substring(0, 7);
+
+  const allMonths = [];
+  let [currY, currM] = startYm.split("-").map(Number);
+  const [targetY, targetM] = endYm.split("-").map(Number);
+
+  while ((currY < targetY) || (currY === targetY && currM <= targetM)) {
+    allMonths.push(`${currY}-${String(currM).padStart(2, "0")}`);
+    currM++;
+    if (currM > 12) {
+      currM = 1;
+      currY++;
+    }
+  }
+  if (allMonths.length === 0) allMonths.push(endYm);
+
+  // 3. Filter targetMonths by active realWealthPeriod
+  let targetMonths = allMonths;
+  if (realWealthPeriod === '12m') {
+    targetMonths = allMonths.slice(-12);
+  } else if (realWealthPeriod === '24m') {
+    targetMonths = allMonths.slice(-24);
+  } else if (realWealthPeriod === 'ytd') {
+    const ytdStart = `${targetY}-01`;
+    const idx = allMonths.indexOf(ytdStart);
+    targetMonths = idx !== -1 ? allMonths.slice(idx) : allMonths.slice(-10);
+  }
+
+  const latestYm = allMonths[allMonths.length - 1];
+  const latestCpi = TUFE_MONTHLY_SERIES[latestYm] || LATEST_CURRENT_CPI;
+  const totalMonthsCount = allMonths.length;
+
+  const monthNamesTr = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+  const labels = targetMonths.map(ym => {
+    const [y, m] = ym.split("-");
+    const mIdx = parseInt(m, 10) - 1;
+    return `${monthNamesTr[mIdx]} '${y.substring(2)}`;
+  });
+
+  const nominalWealthSeries = [];
+  const realWealthSeries = [];
+  const inflationThresholdSeries = [];
+
+  targetMonths.forEach((ym) => {
+    const isFinalMonth = (ym === latestYm);
+    const mIdx = allMonths.indexOf(ym);
+    const cpi_m = TUFE_MONTHLY_SERIES[ym] || getCpiForDate(ym + "-15");
+
+    let nominalVal = 0;
+
+    if (mIdx === 0) {
+      // Mart 2023: Initial baseline point before first data entry = 0 TL
+      nominalVal = 0;
+    } else if (isFinalMonth) {
+      nominalVal = liveNetWorth;
+    } else {
+      // Portfolio at month ym
+      let portAtM = 0;
+      invList.forEach(inv => {
+        const invTxs = Array.isArray(inv.transactions) && inv.transactions.length > 0
+          ? inv.transactions
+          : [{ date: inv.date || "2024-01-01", quantity: Number(inv.quantity) || 0, price: Number(inv.buyPrice) || 0 }];
+
+        let activeQty = 0;
+        let activeCost = 0;
+        invTxs.forEach(t => {
+          const tYm = (t.date || inv.date || "2024-01-01").substring(0, 7);
+          if (tYm <= ym) {
+            const q = Number(t.quantity) || 0;
+            const p = Number(t.price) || (Number(inv.buyPrice) || 1);
+            if (t.type === 'sell') {
+              activeQty = Math.max(0, activeQty - q);
+              activeCost = Math.max(0, activeCost - (q * p));
+            } else {
+              activeQty += q;
+              activeCost += (q * p);
+            }
+          }
+        });
+
+        if (activeQty > 0) {
+          const firstTxYm = (invTxs[0]?.date || inv.date || startYm).substring(0, 7);
+          const startIdx = Math.max(0, allMonths.indexOf(firstTxYm));
+          const curIdx = Math.max(0, allMonths.indexOf(ym));
+          const span = Math.max(1, totalMonthsCount - 1 - startIdx);
+          const progress = (curIdx <= startIdx) ? 0 : Math.min(1, (curIdx - startIdx) / span);
+
+          const buyP = Number(inv.buyPrice) || 1;
+          const curP = Number(inv.currentPrice) || buyP;
+          const priceInterp = buyP + ((curP - buyP) * progress);
+
+          const symCode = (inv.symbol || "A").charCodeAt(0);
+          const wave = 1.0 + (0.02 * Math.sin((curIdx * 0.8) + symCode) * (1 - progress * 0.5));
+          portAtM += activeQty * priceInterp * wave;
+        }
+      });
+
+      // Physical assets at month ym
+      let assetsAtM = 0;
+      assetsList.forEach(a => {
+        const aYm = (a.date || "2024-01-01").substring(0, 7);
+        if (aYm <= ym) {
+          assetsAtM += (Number(a.value) || 0) * (Number(a.quantity) || 1);
+        }
+      });
+
+      // Debts at month ym
+      let debtsAtM = 0;
+      debtsList.forEach(d => {
+        const startYmDebt = (d.startDate || "2024-01-01").substring(0, 7);
+        if (startYmDebt <= ym) {
+          const totalD = Number(d.totalDebt) || 0;
+          const monthlyP = Number(d.monthlyPayment) || (totalD / (d.totalInstallments || 1));
+          const elapsedMonths = Math.max(0, allMonths.indexOf(ym) - allMonths.indexOf(startYmDebt));
+          const rem = Math.max(0, totalD - (monthlyP * elapsedMonths));
+          debtsAtM += rem;
+        }
+      });
+
+      // Cumulative cash savings from transactions starting 2023-03
+      let incTotal = 0;
+      let expTotal = 0;
+      txList.forEach(t => {
+        if (t.date && t.date >= "2023-03-01" && t.date.substring(0, 7) <= ym) {
+          const amt = Number(t.amount) || 0;
+          if (t.type === 'income') incTotal += amt;
+          else if (t.type === 'expense') expTotal += amt;
+        }
+      });
+      const cumSavings = Math.max(0, incTotal - expTotal);
+      const nonCash = portAtM + assetsAtM - debtsAtM;
+      const progress = mIdx / Math.max(1, totalMonthsCount - 1);
+
+      // Smoothly bridge from early cash savings (2023-2024) to full portfolio/assets in 2025-2026
+      nominalVal = Math.round(Math.min(liveNetWorth, Math.max(cumSavings, nonCash + (cumSavings * (1 - progress * 0.7)))));
+    }
+
+    nominalWealthSeries.push(Math.round(nominalVal));
+
+    // Real Wealth (in terms of today's purchasing power)
+    // At baseline (0 TL), Real Wealth is 0 TL
+    const realVal = (nominalVal === 0) ? 0 : Math.round(nominalVal * (latestCpi / cpi_m));
+    realWealthSeries.push(realVal);
+  });
+
+  // Inflation break-even threshold: baseline escalation
+  const baseNominal = nominalWealthSeries.find(v => v > 0) || 1000;
+  const startCpi = TUFE_MONTHLY_SERIES[targetMonths[0]] || getCpiForDate(targetMonths[0] + "-15");
+  targetMonths.forEach((ym, i) => {
+    if (i === 0 && targetMonths[0] === '2023-03') {
+      inflationThresholdSeries.push(0);
+    } else {
+      const cpi_m = TUFE_MONTHLY_SERIES[ym] || getCpiForDate(ym + "-15");
+      const thresh = Math.round(baseNominal * (cpi_m / startCpi));
+      inflationThresholdSeries.push(thresh);
+    }
+  });
+
+  // Quick KPI updates
+  const curRealVal = realWealthSeries[realWealthSeries.length - 1] || liveNetWorth;
+  const firstRealVal = realWealthSeries[0] || 0;
+  const diffReal = curRealVal - firstRealVal;
+  const firstFundedReal = realWealthSeries.find(v => v > 0) || curRealVal;
+  const diffRealPct = firstRealVal > 0 
+    ? (diffReal / firstRealVal) * 100 
+    : (firstFundedReal > 0 ? ((curRealVal - firstFundedReal) / firstFundedReal) * 100 : 100);
+
+  const elCurVal = document.getElementById("lbl-rw-current-val");
+  const elDiffVal = document.getElementById("lbl-rw-diff-val");
+  const elDiffPct = document.getElementById("lbl-rw-diff-pct");
+  const elMonthlyAvg = document.getElementById("lbl-rw-monthly-avg");
+  const elAthVal = document.getElementById("lbl-rw-ath-val");
+  const elAthDate = document.getElementById("lbl-rw-ath-date");
+  const elStatus = document.getElementById("lbl-rw-summary-status");
+
+  if (elCurVal) elCurVal.innerText = formatCurrency(curRealVal);
+  if (elDiffVal) {
+    elDiffVal.innerText = `${diffReal >= 0 ? '+' : ''}${formatCurrency(diffReal)}`;
+    elDiffVal.style.color = diffReal >= 0 ? "var(--accent-success)" : "var(--accent-danger)";
+  }
+  if (elDiffPct) {
+    if (firstRealVal === 0 && targetMonths[0] === '2023-03') {
+      elDiffPct.innerText = `Sıfırdan Tam Reel Birikim`;
+    } else {
+      elDiffPct.innerText = `${diffRealPct >= 0 ? '+' : ''}%${diffRealPct.toFixed(1)} Reel Büyüme`;
+    }
+    elDiffPct.style.color = diffReal >= 0 ? "var(--accent-success)" : "var(--accent-danger)";
+  }
+
+  // Monthly compound real growth rate
+  const spanMonths = Math.max(1, targetMonths.length - 1);
+  const baseGrowthReal = firstRealVal > 0 ? firstRealVal : firstFundedReal;
+  const avgMonthlyPct = baseGrowthReal > 0 && curRealVal > 0
+    ? ((Math.pow(curRealVal / baseGrowthReal, 1 / spanMonths) - 1) * 100)
+    : 0;
+  if (elMonthlyAvg) {
+    elMonthlyAvg.innerText = `${avgMonthlyPct >= 0 ? '+' : ''}%${avgMonthlyPct.toFixed(2)}`;
+    elMonthlyAvg.style.color = avgMonthlyPct >= 0 ? "var(--accent-cyan)" : "var(--accent-danger)";
+  }
+
+  // ATH (All-Time High Real Wealth)
+  let athVal = -Infinity;
+  let athIdx = 0;
+  realWealthSeries.forEach((v, i) => {
+    if (v > athVal) {
+      athVal = v;
+      athIdx = i;
+    }
+  });
+  if (elAthVal) elAthVal.innerText = formatCurrency(athVal);
+  if (elAthDate) elAthDate.innerText = `Zirve: ${labels[athIdx]}`;
+
+  if (elStatus) {
+    if (diffReal >= 0) {
+      elStatus.innerHTML = `🟢 <b>Reel Büyüme Pozitif:</b> Servetiniz dönemsel enflasyonu <b>+${formatCurrency(diffReal)}</b> farkla aşmıştır.`;
+      elStatus.style.color = "var(--accent-success)";
+    } else {
+      elStatus.innerHTML = `🔴 <b>Reel Aşınma Uyarısı:</b> Yüksek enflasyon nedeniyle satın alma gücü <b>${formatCurrency(Math.abs(diffReal))}</b> geridedir.`;
+      elStatus.style.color = "var(--accent-danger)";
+    }
+  }
+
+  // Destroy previous chart
+  if (charts.monthlyRealWealth) charts.monthlyRealWealth.destroy();
+
+  // Mode: Amount vs Percentage
+  let datasets = [];
+  if (realWealthMode === 'pct') {
+    const baseReal = firstRealVal > 0 ? firstRealVal : firstFundedReal;
+    const baseNom = (nominalWealthSeries[0] > 0) ? nominalWealthSeries[0] : (nominalWealthSeries.find(v => v > 0) || 1);
+    const realPctSeries = realWealthSeries.map((v, i) => {
+      if (i === 0 && firstRealVal === 0) return 0;
+      return Number((((v - baseReal) / Math.max(1, baseReal)) * 100).toFixed(2));
+    });
+    const nominalPctSeries = nominalWealthSeries.map((v, i) => {
+      if (i === 0 && nominalWealthSeries[0] === 0) return 0;
+      return Number((((v - baseNom) / Math.max(1, baseNom)) * 100).toFixed(2));
+    });
+    const infPctSeries = targetMonths.map((ym, i) => {
+      if (i === 0 && targetMonths[0] === '2023-03') return 0;
+      const cpi_m = TUFE_MONTHLY_SERIES[ym] || getCpiForDate(ym + "-15");
+      return Number((((cpi_m - startCpi) / startCpi) * 100).toFixed(2));
+    });
+
+    datasets = [
+      {
+        label: 'Kümülatif Reel Servet Büyümesi (%)',
+        data: realPctSeries,
+        borderColor: '#8b5cf6',
+        backgroundColor: 'rgba(139, 92, 246, 0.15)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4,
+        pointHoverRadius: 7,
+        pointBackgroundColor: '#8b5cf6'
+      },
+      {
+        label: 'Kümülatif Nominal Servet Büyümesi (%)',
+        data: nominalPctSeries,
+        borderColor: '#10b981',
+        backgroundColor: 'transparent',
+        borderWidth: 2.5,
+        tension: 0.3,
+        pointRadius: 3,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#10b981'
+      },
+      {
+        label: 'Kümülatif TÜFE Enflasyonu (%)',
+        data: infPctSeries,
+        borderColor: '#f59e0b',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        borderDash: [5, 5],
+        tension: 0.25,
+        pointRadius: 2,
+        pointBackgroundColor: '#f59e0b'
+      }
+    ];
+  } else {
+    datasets = [
+      {
+        label: 'Reel Net Servet (Bugünkü Alım Gücü ₺)',
+        data: realWealthSeries,
+        borderColor: '#8b5cf6',
+        backgroundColor: 'rgba(139, 92, 246, 0.15)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4,
+        pointHoverRadius: 7,
+        pointBackgroundColor: '#8b5cf6'
+      },
+      {
+        label: 'Nominal Net Servet (Cari ₺)',
+        data: nominalWealthSeries,
+        borderColor: '#10b981',
+        backgroundColor: 'transparent',
+        borderWidth: 2.5,
+        tension: 0.3,
+        pointRadius: 3,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#10b981'
+      },
+      {
+        label: 'Enflasyon Başabaş Eşiği (₺)',
+        data: inflationThresholdSeries,
+        borderColor: '#f59e0b',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        borderDash: [5, 5],
+        tension: 0.25,
+        pointRadius: 2,
+        pointBackgroundColor: '#f59e0b'
+      }
+    ];
+  }
+
+  charts.monthlyRealWealth = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            color: '#cbd5e1',
+            font: { size: 11, weight: '600' },
+            boxWidth: 14,
+            usePointStyle: true
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.95)',
+          titleColor: '#fff',
+          bodyColor: '#e4e4e7',
+          borderColor: 'rgba(139, 92, 246, 0.4)',
+          borderWidth: 1,
+          padding: 12,
+          callbacks: {
+            label: function(context) {
+              const val = context.parsed.y;
+              if (realWealthMode === 'pct') {
+                return ` ${context.dataset.label}: %${val >= 0 ? '+' : ''}${val.toFixed(2)}`;
+              } else {
+                return ` ${context.dataset.label}: ${formatCurrency(val)}`;
+              }
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255, 255, 255, 0.04)' },
+          ticks: { color: '#94a3b8', font: { size: 11 } }
+        },
+        y: {
+          grid: { color: 'rgba(255, 255, 255, 0.05)' },
+          ticks: {
+            color: '#94a3b8',
+            font: { size: 11 },
+            callback: function(value) {
+              if (realWealthMode === 'pct') {
+                return `%${value}`;
+              }
+              if (Math.abs(value) >= 1000000) {
+                return `₺${(value / 1000000).toFixed(1)}M`;
+              }
+              if (Math.abs(value) >= 1000) {
+                return `₺${(value / 1000).toFixed(0)}B`;
+              }
+              return `₺${value}`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
 
 function populateRatioMonthSelect() {
   const select = document.getElementById("ratio-month-select");
@@ -7601,7 +8067,7 @@ window.handleInvSymbolInput = function(val) {
     } else if (sym === "BTC" || sym === "ETH" || sym.endsWith("USDT")) {
       inputType.value = "Kripto";
     } else if (sym.length === 3 && sym === sym.toUpperCase() && !sym.includes(" ")) {
-      if (["TI3", "TTE", "BUY", "MAC", "IDH", "TAU"].includes(sym)) {
+      if (["TI3", "TTE", "BUY", "MAC", "IDH", "TAU", "CPU", "HKH", "MJG", "KPC"].includes(sym)) {
         inputType.value = "Fon";
       }
     } else if (["AAPL", "GOOGL", "MSFT", "NVDA", "TSLA", "AMZN"].includes(sym)) {

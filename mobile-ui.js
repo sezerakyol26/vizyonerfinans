@@ -89,7 +89,7 @@ window.switchMobileTab = function(tabName) {
 
 // Sekme Başına Şık Dikey Mobil Çerçeve Başlığı Enjekte Et
 function ensureSectionBanner(tabName) {
-  if (tabName === 'more') return;
+  if (tabName === 'more' || tabName === 'dashboard') return;
   const sec = document.getElementById('view-' + tabName);
   if (!sec) return;
 

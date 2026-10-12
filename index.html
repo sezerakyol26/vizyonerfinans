@@ -492,6 +492,104 @@
           </div>
         </div>
 
+        <!-- ===================================================================
+             AYLIK REEL SERVET & NET VARLIK GELİŞİM GRAFİĞİ (REAL WEALTH TREND)
+             =================================================================== -->
+        <div class="glass-card card-glow-violet" id="section-monthly-real-wealth" style="margin-top: 18px; border: 1px solid rgba(139, 92, 246, 0.35); padding: 22px;">
+          <div class="card-header-bar" style="flex-wrap: wrap; gap: 14px; margin-bottom: 18px; align-items: flex-start;">
+            <div>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:40px; height:40px; border-radius:10px; background:rgba(139,92,246,0.18); display:flex; align-items:center; justify-content:center; border:1px solid rgba(139,92,246,0.4);">
+                  <i data-lucide="gem" style="color:var(--accent-primary); width:22px; height:22px;"></i>
+                </div>
+                <div>
+                  <h2 class="card-heading" style="font-size:1.15rem; color:#fff; display:flex; align-items:center; gap:8px;">
+                    Aylık Reel Servet & Satın Alma Gücü Gelişimi
+                    <span class="role-badge" style="background:rgba(139,92,246,0.15); color:var(--accent-primary); border-color:rgba(139,92,246,0.3); font-size:0.72rem;">TÜİK TÜFE Arındırılmış</span>
+                  </h2>
+                  <span class="card-subtext" id="lbl-real-wealth-subtitle">
+                    Aylara göre net servetinizin bugünkü alım gücü karşılığı (Reel Servet), cari nominal büyüklüğü ve enflasyon başabaş eşiği
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Toolbar: View Mode & Timeframe Filters -->
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+              <!-- Mode Toggle: Amount (₺) vs Percentage (%) -->
+              <div class="filter-tabs-bar" style="margin:0; display:flex; gap:4px;">
+                <button type="button" class="filter-tab-btn active" id="btn-rw-mode-amt" onclick="setRealWealthMode('amt')" title="TL Bazında Reel ve Nominal Servet Değeri">
+                  <i data-lucide="coins" style="width:13px; display:inline;"></i> ₺ Değer
+                </button>
+                <button type="button" class="filter-tab-btn" id="btn-rw-mode-pct" onclick="setRealWealthMode('pct')" title="% Kümülatif Reel Büyüme Oranı">
+                  <i data-lucide="percent" style="width:13px; display:inline;"></i> % Değişim
+                </button>
+              </div>
+
+              <!-- Timeframe Period Selector -->
+              <div class="filter-tabs-bar" style="margin:0; display:flex; gap:4px;">
+                <button type="button" class="filter-tab-btn active" id="btn-rw-period-all" onclick="setRealWealthPeriod('all')" title="Tüm İşlem Geçmişi">Tümü</button>
+                <button type="button" class="filter-tab-btn" id="btn-rw-period-24m" onclick="setRealWealthPeriod('24m')" title="Son 24 Ay">24 Ay</button>
+                <button type="button" class="filter-tab-btn" id="btn-rw-period-12m" onclick="setRealWealthPeriod('12m')" title="Son 12 Ay">12 Ay</button>
+                <button type="button" class="filter-tab-btn" id="btn-rw-period-ytd" onclick="setRealWealthPeriod('ytd')" title="Yılbaşından Bugüne">YBB</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 Quick Stats Chips for Real Wealth -->
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px;">
+            <div class="stats-card glass-card" style="padding: 12px 14px; background: rgba(139,92,246,0.06); border-color: rgba(139,92,246,0.25);">
+              <span class="stats-title" style="font-size:0.74rem; color:var(--accent-primary);">Güncel Reel Net Servet</span>
+              <div style="font-size:1.18rem; font-weight:800; color:#fff; margin-top:2px;" id="lbl-rw-current-val">₺ 0</div>
+              <span style="font-size:0.70rem; color:var(--accent-primary);" id="lbl-rw-current-sub">Bugünkü Satın Alma Gücü</span>
+            </div>
+
+            <div class="stats-card glass-card" style="padding: 12px 14px; background: rgba(16,185,129,0.05); border-color: rgba(16,185,129,0.25);">
+              <span class="stats-title" style="font-size:0.74rem; color:var(--accent-success);">Dönemsel Reel Artış</span>
+              <div style="font-size:1.18rem; font-weight:800; color:var(--accent-success); margin-top:2px;" id="lbl-rw-diff-val">+₺ 0</div>
+              <span style="font-size:0.70rem; color:var(--accent-success);" id="lbl-rw-diff-pct">+%0.0 Reel Büyüme</span>
+            </div>
+
+            <div class="stats-card glass-card" style="padding: 12px 14px; background: rgba(6,182,212,0.05); border-color: rgba(6,182,212,0.25);">
+              <span class="stats-title" style="font-size:0.74rem; color:var(--accent-cyan);">Aylık Ort. Reel Değişim</span>
+              <div style="font-size:1.18rem; font-weight:800; color:var(--accent-cyan); margin-top:2px;" id="lbl-rw-monthly-avg">+%0.0</div>
+              <span style="font-size:0.70rem; color:var(--text-muted);">Aylık Bileşik Reel Hız</span>
+            </div>
+
+            <div class="stats-card glass-card" style="padding: 12px 14px; background: rgba(245,158,11,0.05); border-color: rgba(245,158,11,0.25);">
+              <span class="stats-title" style="font-size:0.74rem; color:var(--accent-amber);">Reel Servet Zirvesi (ATH)</span>
+              <div style="font-size:1.18rem; font-weight:800; color:var(--accent-amber); margin-top:2px;" id="lbl-rw-ath-val">₺ 0</div>
+              <span style="font-size:0.70rem; color:var(--text-muted);" id="lbl-rw-ath-date">En Yüksek Alım Gücü</span>
+            </div>
+          </div>
+
+          <!-- Chart Container -->
+          <div class="chart-container" style="height: 340px; position: relative;">
+            <canvas id="chart-monthly-real-wealth"></canvas>
+          </div>
+
+          <!-- Legend & Insight Footer -->
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; padding-top:12px; border-top:1px solid var(--border-color); flex-wrap:wrap; gap:12px; font-size:0.80rem; color:var(--text-secondary);">
+            <div style="display:flex; gap:20px; flex-wrap:wrap; align-items:center;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="display:inline-block; width:14px; height:14px; background:var(--accent-primary); border-radius:3px; box-shadow:0 0 6px rgba(139,92,246,0.6);"></span>
+                <span style="color:#fff;"><b>Reel Net Servet:</b> Bugünkü Satın Alma Gücü (TÜFE Endeksli)</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="display:inline-block; width:14px; height:3px; background:var(--accent-success); border-radius:2px;"></span>
+                <span><b>Nominal Servet:</b> O Ayki Cari TL Değeri</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="display:inline-block; width:14px; height:0; border-top:2px dashed var(--accent-warning);"></span>
+                <span><b>Enflasyon Başabaş Eşiği:</b> Satın Alma Gücü Koruma Sınırı</span>
+              </div>
+            </div>
+            <div id="lbl-rw-summary-status" style="font-weight:700; color:var(--accent-success);">
+              🟢 Servetiniz Enflasyon Karşısında Büyümeyi Sürdürüyor
+            </div>
+          </div>
+        </div>
+
         <!-- Monthly Financial Efficiency & Ratio Analysis (Gider/Gelir & Yatırım/Gelir) -->
         <div class="glass-card" style="margin-top: 18px;">
           <div class="card-header-bar" style="flex-wrap: wrap; gap: 10px;">
